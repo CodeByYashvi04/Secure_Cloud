@@ -17,18 +17,42 @@ router.get('/logs', auth, async (req, res) => {
     }
 });
 
+const axios = require('axios');
+
 // @route   POST api/activity/log
-// @desc    Create a new activity log entry
+// @desc    Create a new activity log entry with AI analysis
 // @access  Private
 router.post('/log', auth, async (req, res) => {
     try {
-        const { action, service, ipAddress, riskScore } = req.body;
+        const { action, service, ipAddress } = req.body;
+        
+        let riskScore = 0;
+        
+        // Attempt to call AI Service
+        try {
+            const aiRes = await axios.post('http://localhost:8000/analyze', {
+                logs: [{
+                    userId: req.user.id,
+                    service: service || 'App',
+                    action: action || 'User Action',
+                    ipAddress: ipAddress || req.ip || '0.0.0.0'
+                }]
+            });
+            if (aiRes.data && aiRes.data.results) {
+                riskScore = aiRes.data.results[0].riskScore;
+            }
+        } catch (aiErr) {
+            console.log('AI Service offline, using default scoring.');
+            // Basic heuristic fallback
+            riskScore = action && action.toLowerCase().includes('failed') ? 50 : 10;
+        }
+
         const log = new Activity({
             userId: req.user.id,
             action: action || 'User Action',
             service: service || 'App',
             ipAddress: ipAddress || req.ip || '0.0.0.0',
-            riskScore: riskScore || 0,
+            riskScore,
         });
         await log.save();
         res.json(log);

@@ -56,9 +56,11 @@ router.post('/log', auth, async (req, res) => {
             riskScore,
         });
         await log.save();
+        console.log(`Log saved with Risk Score: ${riskScore}`);
 
-        // Generate Alert if risk is high
-        if (riskScore >= 50) {
+        // Generate Alert if risk is high (Lowered to 10 for testing)
+        if (riskScore >= 10) {
+            console.log('Creating security alert...');
             const alertType = riskScore >= 85 ? 'Critical' : (riskScore >= 70 ? 'High' : 'Medium');
             const newAlert = new Alert({
                 userId: req.user.id,
@@ -69,6 +71,7 @@ router.post('/log', auth, async (req, res) => {
                 riskScore: riskScore
             });
             await newAlert.save();
+            console.log('Alert saved successfully.');
         }
 
         res.json(log);

@@ -1,0 +1,26 @@
+Resolving dependencies...
+Downloading packages...
+  meta 1.17.0 (1.18.2 available)
+  test_api 0.7.10 (0.7.11 available)
+  vector_math 2.2.0 (2.3.0 available)
+Got dependencies!
+3 packages have newer versions incompatible with dependency constraints.
+Try `flutter pub outdated` for more information.
+Running Gradle task 'assembleDebug'...                          
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':app:processDebugManifestForPackage'.
+> Cannot access output property 'packageManifests' of task ':app:processDebugManifestForPackage'. Accessing unreadable inputs or outputs is not supported. Declare the task as untracked by using Task.doNotTrackState(). For more information, please refer to https://docs.gradle.org/8.14/userguide/incremental_build.html#sec:disable-state-tracking in the Gradle documentation.
+   > java.io.IOException: Cannot snapshot C:\Users\Lenovo\OneDrive\Desktop\Project\CloudSecure\cloud_secure_mobile\build\app\intermediates\packaged_manifests\debug\processDebugManifestForPackage\AndroidManifest.xml: not a regular file
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights.
+> Get more help at https://help.gradle.org.
+
+BUILD FAILED in 1m 31s
+Running Gradle task 'assembleDebug'...                             92.0s
+Gradle task assembleDebug failed with exit code 1

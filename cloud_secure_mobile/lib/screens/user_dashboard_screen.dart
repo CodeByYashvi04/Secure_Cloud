@@ -108,20 +108,25 @@ class _UserDashboardScreenState extends State<UserDashboardScreen> {
                     child: Icon(LucideIcons.userCheck, size: 30, color: theme.primaryColor),
                   ),
                   const SizedBox(width: 16),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Welcome, ${user?['name'] ?? 'User'}',
-                        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold,
-                            color: isDark ? Colors.white : Colors.black87),
-                      ),
-                      Text(user?['email'] ?? '', style: TextStyle(color: theme.primaryColor)),
-                      Text(
-                        'Role: ${user?['role'] ?? 'User'}  •  Verified',
-                        style: const TextStyle(color: Color(0xFF4F6B92), fontSize: 12),
-                      ),
-                    ],
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Welcome, ${user?['name'] ?? 'User'}',
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold,
+                              color: isDark ? Colors.white : Colors.black87),
+                        ),
+                        Text(user?['email'] ?? '', 
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(color: theme.primaryColor)),
+                        Text(
+                          'Role: ${user?['role'] ?? 'User'}  •  Verified',
+                          style: const TextStyle(color: Color(0xFF4F6B92), fontSize: 12),
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),

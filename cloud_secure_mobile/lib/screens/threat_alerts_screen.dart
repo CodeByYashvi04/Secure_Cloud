@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
+import 'package:intl/intl.dart';
 import '../services/api_service.dart';
 
 class ThreatAlertsScreen extends StatefulWidget {
@@ -36,150 +37,122 @@ class _ThreatAlertsScreenState extends State<ThreatAlertsScreen> {
     final isDark = theme.brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
-        title: Text('Threat Alerts', style: TextStyle(fontWeight: FontWeight.bold, color: isDark ? Colors.white : Colors.black87)),
+        title: const Text('Threat Alerts', style: TextStyle(fontWeight: FontWeight.bold)),
         backgroundColor: Colors.transparent,
         elevation: 0,
         actions: [
           IconButton(
-            icon: Icon(LucideIcons.refreshCw, color: theme.primaryColor, size: 20),
+            icon: const Icon(LucideIcons.refreshCw, size: 20),
             onPressed: _fetchAlerts,
           ),
         ],
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
-          : RefreshIndicator(
-              onRefresh: _fetchAlerts,
-              child: _alerts.isEmpty
-                  ? Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(LucideIcons.shieldCheck, size: 64, color: theme.primaryColor.withValues(alpha: 0.5)),
-                          const SizedBox(height: 16),
-                          const Text('No active threats detected', style: TextStyle(color: Color(0xFF4F6B92))),
-                        ],
+          : _alerts.isEmpty
+              ? Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(LucideIcons.shieldCheck, size: 64, color: theme.primaryColor.withValues(alpha: 0.3)),
+                      const SizedBox(height: 16),
+                      Text(
+                        'System Secure',
+                        style: TextStyle(
+                          color: isDark ? const Color(0xFFA0B2C6) : Colors.black54,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                    )
-                  : ListView.builder(
-                      padding: const EdgeInsets.all(16.0),
-                      itemCount: _alerts.length,
-                      itemBuilder: (context, index) {
-                        final alert = _alerts[index];
-                        return _buildAlertCard(
-                          type: alert['type'] ?? 'Low',
-                          source: alert['source'] ?? 'Unknown',
-                          title: alert['title'] ?? 'Security Alert',
-                          time: 'Recently', // Simplified or use a time ago package
-                          ip: 'Detected from system',
-                          risk: alert['riskScore'] ?? 0,
-                          icon: _getIconForType(alert['type']),
-                          color: _getColorForType(alert['type']),
-                        );
-                      },
-                    ),
-            ),
+                      const SizedBox(height: 8),
+                      const Text('No active threats detected.', style: TextStyle(color: Color(0xFF4F6B92))),
+                    ],
+                  ),
+                )
+              : RefreshIndicator(
+                  onRefresh: _fetchAlerts,
+                  child: ListView.builder(
+                    padding: const EdgeInsets.all(16),
+                    itemCount: _alerts.length,
+                    itemBuilder: (context, i) => _buildAlertCard(_alerts[i], isDark),
+                  ),
+                ),
     );
   }
 
-  IconData _getIconForType(String? type) {
-    switch (type) {
-      case 'Critical': return LucideIcons.alertOctagon;
-      case 'High': return LucideIcons.shieldAlert;
-      case 'Medium': return LucideIcons.alertTriangle;
-      default: return LucideIcons.info;
-    }
-  }
+  Widget _buildAlertCard(Map<String, dynamic> alert, bool isDark) {
+    final type = alert['type'] ?? 'Low';
+    final severityColor = type == 'Critical' ? const Color(0xFFFF3366)
+        : type == 'High' ? const Color(0xFFF5A623)
+        : const Color(0xFF00F0FF);
+    
+    final timestamp = alert['timestamp'] != null
+        ? DateFormat('MMM d, h:mm a').format(DateTime.parse(alert['timestamp']))
+        : '';
 
-  Color _getColorForType(String? type) {
-    switch (type) {
-      case 'Critical': return const Color(0xFFFF3366);
-      case 'High': return const Color(0xFFFF8C00);
-      case 'Medium': return const Color(0xFFF5A623);
-      default: return const Color(0xFF00F0FF);
-    }
-  }
-
-  Widget _buildAlertCard({
-    required String type,
-    required String source,
-    required String title,
-    required String time,
-    required String ip,
-    required int risk,
-    required IconData icon,
-    required Color color,
-  }) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
-        borderRadius: BorderRadius.circular(12),
-        border: Border(
-          left: BorderSide(color: color, width: 4),
-          top: BorderSide(color: Theme.of(context).dividerColor, width: 1),
-          right: BorderSide(color: Theme.of(context).dividerColor, width: 1),
-          bottom: BorderSide(color: Theme.of(context).dividerColor, width: 1),
-        ),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: severityColor.withValues(alpha: 0.2)),
+        boxShadow: [
+          BoxShadow(
+            color: severityColor.withValues(alpha: 0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Icon(icon, color: color, size: 20),
-              const SizedBox(width: 8),
-              Expanded(
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  color: severityColor.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(20),
+                ),
                 child: Text(
-                  title,
-                  style: TextStyle(
-                    color: isDark ? Colors.white : Colors.black87,
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  type.toUpperCase(),
+                  style: TextStyle(color: severityColor, fontSize: 10, fontWeight: FontWeight.bold),
                 ),
               ),
-              Text(
-                'Risk $risk',
-                style: TextStyle(
-                  color: color,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 14,
-                ),
-              ),
+              Text(timestamp, style: const TextStyle(color: Color(0xFF4F6B92), fontSize: 12)),
             ],
           ),
           const SizedBox(height: 12),
-          Text('Source: $source', style: const TextStyle(color: Color(0xFFA0B2C6))),
+          Text(
+            alert['title'] ?? 'Security Alert',
+            style: TextStyle(
+              color: isDark ? Colors.white : Colors.black87,
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
           const SizedBox(height: 4),
-          Text('Type: $type', style: const TextStyle(color: Color(0xFFA0B2C6))),
-          const SizedBox(height: 4),
-          Text(time, style: const TextStyle(color: Color(0xFF4F6B92), fontSize: 12)),
+          Text(
+            alert['description'] ?? '',
+            style: const TextStyle(color: Color(0xFFA0B2C6), fontSize: 14),
+          ),
           const SizedBox(height: 16),
           Row(
             children: [
-              ElevatedButton(
-                onPressed: () {},
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: color,
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                ),
-                child: const Text('Investigate'),
+              Icon(LucideIcons.activity, size: 14, color: severityColor),
+              const SizedBox(width: 6),
+              Text(
+                'Source: ${alert['source'] ?? "Internal Engine"}',
+                style: const TextStyle(color: Color(0xFF4F6B92), fontSize: 12),
               ),
-              const SizedBox(width: 12),
-              OutlinedButton(
+              const Spacer(),
+              TextButton(
                 onPressed: () {},
-                style: OutlinedButton.styleFrom(
-                  side: const BorderSide(color: Color(0xFF4F6B92)),
-                  foregroundColor: const Color(0xFFA0B2C6),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                ),
-                child: const Text('Dismiss'),
+                child: const Text('INVESTIGATE'),
               ),
             ],
           ),

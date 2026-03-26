@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const auth = require('../middleware/auth');
 const Activity = require('../models/Activity');
+const Alert = require('../models/Alert');
 
 // @route   GET api/activity/logs
 // @desc    Get activity logs for user
@@ -55,6 +56,21 @@ router.post('/log', auth, async (req, res) => {
             riskScore,
         });
         await log.save();
+
+        // Generate Alert if risk is high
+        if (riskScore >= 50) {
+            const alertType = riskScore >= 85 ? 'Critical' : (riskScore >= 70 ? 'High' : 'Medium');
+            const newAlert = new Alert({
+                userId: req.user.id,
+                type: alertType,
+                title: `${alertType} Risk Detected`,
+                description: `Unusual activity: ${action} in ${service} (Score: ${riskScore})`,
+                source: service || 'System',
+                riskScore: riskScore
+            });
+            await newAlert.save();
+        }
+
         res.json(log);
     } catch (err) {
         res.status(500).json({ message: 'Failed to create log.' });

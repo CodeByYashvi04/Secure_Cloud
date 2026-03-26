@@ -47,6 +47,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
     if (result.containsKey('token')) {
       ApiService.setToken(result['token']);
+      if (result['user'] != null) {
+        ApiService.setUser(Map<String, dynamic>.from(result['user']));
+      }
       if (!mounted) return;
       Navigator.of(context).pushAndRemoveUntil(
         MaterialPageRoute(builder: (_) => const MainLayout()),

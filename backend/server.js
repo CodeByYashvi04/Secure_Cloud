@@ -15,6 +15,9 @@ app.use(cors());
 // Routes
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/dashboard', require('./routes/dashboard'));
+app.use('/api/vault', require('./routes/vault'));
+app.use('/api/cloud', require('./routes/cloud'));
+app.use('/api/activity', require('./routes/activity'));
 
 // Placeholder for other routes
 app.get('/', (req, res) => {

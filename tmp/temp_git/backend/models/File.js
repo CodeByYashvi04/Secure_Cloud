@@ -6,6 +6,7 @@ const FileSchema = new mongoose.Schema({
     originalName: { type: String, required: true },
     size: { type: Number, required: true },
     mimetype: { type: String },
+    data: { type: Buffer }, // Store actual file data for download
     status: { type: String, enum: ['Uploading', 'Scanning', 'Encrypted', 'Failed'], default: 'Scanning' },
     uploadedAt: { type: Date, default: Date.now }
 });

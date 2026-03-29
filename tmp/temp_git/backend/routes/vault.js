@@ -30,6 +30,7 @@ router.post('/upload', auth, upload.single('file'), async (req, res) => {
             originalName: req.file.originalname,
             size: req.file.size,
             mimetype: req.file.mimetype,
+            data: req.file.buffer, // Save the actual buffer
             status: 'Encrypted',
         });
 
@@ -84,6 +85,28 @@ router.delete('/files/:id', auth, async (req, res) => {
         res.json({ message: 'File deleted.' });
     } catch (err) {
         res.status(500).json({ message: 'Failed to delete file.' });
+    }
+});
+
+// @route   GET api/vault/download/:id
+// @desc    Download a file
+// @access  Private
+router.get('/download/:id', auth, async (req, res) => {
+    try {
+        const file = await File.findOne({ _id: req.params.id, userId: req.user.id });
+        if (!file || !file.data) {
+            return res.status(404).json({ message: 'File not found.' });
+        }
+
+        res.set({
+            'Content-Type': file.mimetype,
+            'Content-Disposition': `attachment; filename="${file.originalName}"`,
+            'Content-Length': file.data.length
+        });
+
+        res.send(file.data);
+    } catch (err) {
+        res.status(500).json({ message: 'Download failed.' });
     }
 });
 

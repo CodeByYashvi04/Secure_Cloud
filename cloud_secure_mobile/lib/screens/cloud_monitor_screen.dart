@@ -135,9 +135,22 @@ class _CloudMonitorScreenState extends State<CloudMonitorScreen> {
 
   void _showAddAccountWizard() {
     String? selectedProvider;
-    final keyCtrl = TextEditingController();
-    final secretCtrl = TextEditingController();
     bool isVerifying = false;
+    String errorMessage = '';
+
+    // AWS
+    final awsAccessCtrl = TextEditingController();
+    final awsSecretCtrl = TextEditingController();
+    
+    // GCP
+    final gcpProjectCtrl = TextEditingController();
+    final gcpEmailCtrl = TextEditingController();
+    final gcpKeyCtrl = TextEditingController();
+
+    // Azure
+    final azureTenantCtrl = TextEditingController();
+    final azureClientCtrl = TextEditingController();
+    final azureSecretCtrl = TextEditingController();
 
     showModalBottomSheet(
       context: context,
@@ -145,7 +158,7 @@ class _CloudMonitorScreenState extends State<CloudMonitorScreen> {
       backgroundColor: Colors.transparent,
       builder: (context) => StatefulBuilder(
         builder: (context, setModalState) => Container(
-          height: MediaQuery.of(context).size.height * 0.75,
+          height: MediaQuery.of(context).size.height * 0.85,
           decoration: const BoxDecoration(
             color: Color(0xFF0F1522),
             borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
@@ -156,8 +169,8 @@ class _CloudMonitorScreenState extends State<CloudMonitorScreen> {
             children: [
               const Text('Add Cloud Provider', style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold)),
               const SizedBox(height: 8),
-              const Text('Connect your cloud infrastructure for real-time monitoring.', style: TextStyle(color: Color(0xFF4F6B92))),
-              const SizedBox(height: 32),
+              const Text('Connect your cloud infrastructure via IAM credentials.', style: TextStyle(color: Color(0xFF4F6B92))),
+              const SizedBox(height: 24),
               
               if (selectedProvider == null) ...[
                 const Text('Select Provider', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
@@ -173,31 +186,100 @@ class _CloudMonitorScreenState extends State<CloudMonitorScreen> {
                   const SizedBox(width: 8),
                   Text('Configuring $selectedProvider', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                   const Spacer(),
-                  TextButton(onPressed: () => setModalState(() => selectedProvider = null), child: const Text('Change')),
+                  TextButton(onPressed: () => setModalState(() { selectedProvider = null; errorMessage = ''; }), child: const Text('Change')),
                 ]),
-                const SizedBox(height: 24),
-                _buildTextField('Access Key ID / Client ID', keyCtrl),
                 const SizedBox(height: 16),
-                _buildTextField('Secret Access Key / Secret', secretCtrl, isPassword: true),
-                const Spacer(),
+                
+                Expanded(
+                  child: SingleChildScrollView(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        if (selectedProvider == 'AWS') ...[
+                          _buildTextField('AWS Access Key ID', awsAccessCtrl),
+                          const SizedBox(height: 16),
+                          _buildTextField('AWS Secret Access Key', awsSecretCtrl, isPassword: true),
+                        ] else if (selectedProvider == 'GCP') ...[
+                          _buildTextField('Project ID', gcpProjectCtrl),
+                          const SizedBox(height: 16),
+                          _buildTextField('Service Account Email', gcpEmailCtrl),
+                          const SizedBox(height: 16),
+                          _buildTextField('Private Key (Paste entire block with -----BEGIN...)', gcpKeyCtrl, isPassword: true, maxLines: 5),
+                        ] else if (selectedProvider == 'Azure') ...[
+                          _buildTextField('Directory (Tenant) ID', azureTenantCtrl),
+                          const SizedBox(height: 16),
+                          _buildTextField('Application (Client) ID', azureClientCtrl),
+                          const SizedBox(height: 16),
+                          _buildTextField('Client Secret', azureSecretCtrl, isPassword: true),
+                        ],
+                        
+                        if (errorMessage.isNotEmpty) ...[
+                          const SizedBox(height: 16),
+                          Container(
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(color: const Color(0xFFFF3366).withValues(alpha: 0.1), borderRadius: BorderRadius.circular(8)),
+                            child: Row(
+                              children: [
+                                const Icon(LucideIcons.alertCircle, color: Color(0xFFFF3366), size: 16),
+                                const SizedBox(width: 8),
+                                Expanded(child: Text(errorMessage, style: const TextStyle(color: Color(0xFFFF3366), fontSize: 12))),
+                              ],
+                            ),
+                          )
+                        ],
+                      ],
+                    ),
+                  ),
+                ),
+                
+                const SizedBox(height: 16),
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
                     onPressed: isVerifying ? null : () async {
-                      setModalState(() => isVerifying = true);
-                      await Future.delayed(const Duration(seconds: 2));
-                      if (mounted) Navigator.pop(context);
-                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                        content: Text('Account connected and initial scan started.'),
-                        backgroundColor: Color(0xFF00F0FF),
-                      ));
+                      setModalState(() { isVerifying = true; errorMessage = ''; });
+                      
+                      Map<String, String> payload = {};
+                      if (selectedProvider == 'AWS') {
+                        payload = { 'apiKey': awsAccessCtrl.text, 'apiSecret': awsSecretCtrl.text };
+                      } else if (selectedProvider == 'GCP') {
+                        payload = { 'projectId': gcpProjectCtrl.text, 'clientEmail': gcpEmailCtrl.text, 'privateKey': gcpKeyCtrl.text };
+                      } else if (selectedProvider == 'Azure') {
+                        payload = { 'tenantId': azureTenantCtrl.text, 'clientId': azureClientCtrl.text, 'clientSecret': azureSecretCtrl.text };
+                      }
+
+                      try {
+                        await ApiService.addCloudAccount(selectedProvider!, payload);
+                        if (mounted) {
+                          Navigator.pop(context);
+                          _fetchAccounts(); // Refresh the list
+                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                            content: Row(
+                              children: [
+                                const Icon(LucideIcons.checkCircle, color: Colors.white),
+                                const SizedBox(width: 12),
+                                Text('$selectedProvider Verified & Linked!', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                              ],
+                            ),
+                            backgroundColor: const Color(0xFF00F0FF),
+                            behavior: SnackBarBehavior.floating,
+                          ));
+                        }
+                      } catch (e) {
+                         setModalState(() => errorMessage = e.toString());
+                      } finally {
+                         setModalState(() => isVerifying = false);
+                      }
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF00F0FF),
                       foregroundColor: const Color(0xFF0B0F19),
                       padding: const EdgeInsets.symmetric(vertical: 16),
+                      disabledBackgroundColor: const Color(0xFF00F0FF).withValues(alpha: 0.5),
                     ),
-                    child: Text(isVerifying ? 'VERIFYING CREDENTIALS...' : 'CONNECT ACCOUNT', style: const TextStyle(fontWeight: FontWeight.bold)),
+                    child: isVerifying
+                        ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(color: Color(0xFF0B0F19), strokeWidth: 2))
+                        : const Text('VERIFY & CONNECT', style: TextStyle(fontWeight: FontWeight.bold)),
                   ),
                 ),
               ],
@@ -231,7 +313,7 @@ class _CloudMonitorScreenState extends State<CloudMonitorScreen> {
     );
   }
 
-  Widget _buildTextField(String label, TextEditingController ctrl, {bool isPassword = false}) {
+  Widget _buildTextField(String label, TextEditingController ctrl, {bool isPassword = false, int maxLines = 1}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -239,8 +321,9 @@ class _CloudMonitorScreenState extends State<CloudMonitorScreen> {
         const SizedBox(height: 8),
         TextField(
           controller: ctrl,
-          obscureText: isPassword,
-          style: const TextStyle(color: Colors.white),
+          obscureText: isPassword && maxLines == 1,
+          maxLines: maxLines,
+          style: const TextStyle(color: Colors.white, fontSize: 13, fontFamily: 'monospace'),
           decoration: InputDecoration(
             filled: true,
             fillColor: const Color(0xFF1A233A),

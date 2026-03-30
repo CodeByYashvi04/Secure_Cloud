@@ -143,6 +143,26 @@ class ApiService {
     } catch (_) { return []; }
   }
 
+  static Future<Map<String, dynamic>?> addCloudAccount(String provider, Map<String, String> credentials) async {
+    try {
+      final h = {..._headers, 'Content-Type': 'application/json'};
+      final body = json.encode({
+        'provider': provider,
+        'credentials': credentials
+      });
+      final r = await http.post(Uri.parse('$baseUrl/cloud/accounts'), headers: h, body: body);
+      
+      if (r.statusCode == 200) {
+        return json.decode(r.body) as Map<String, dynamic>;
+      } else {
+        throw Exception(json.decode(r.body)['message'] ?? 'Failed to add account');
+      }
+    } catch (e) {
+      // Re-throw so the UI can catch and display the nice error to the user
+      throw Exception(e.toString().replaceAll('Exception: ', ''));
+    }
+  }
+
   // ─── ACTIVITY LOGS ───────────────────────────────────────────────────────
 
   static Future<List<dynamic>> getActivityLogs() async {

@@ -39,6 +39,9 @@ dependencies:
   http: ^1.6.0
   file_picker: ^8.1.7
   intl: ^0.20.2
+  fl_chart: ^0.66.0
+  dio: ^5.4.1
+  socket_io_client: ^3.1.4
 
 dev_dependencies:
   flutter_test:

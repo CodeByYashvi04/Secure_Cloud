@@ -221,6 +221,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }) {
     return TextField(
       controller: controller,
+      obscureText: !_isPasswordVisible,
       style: TextStyle(color: isDark ? Colors.white : Colors.black87),
       decoration: InputDecoration(
         labelText: label,

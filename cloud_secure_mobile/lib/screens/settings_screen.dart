@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:cloud_secure_mobile/screens/login_screen.dart';
-
+import '../services/api_service.dart';
 import 'package:provider/provider.dart';
 import '../main.dart'; // to read ThemeProvider
 
@@ -13,14 +13,73 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  bool mfaEnabled = true;
-  bool pushEnabled = true;
+  // ignore: unused_field
+  bool _isLoading = false;
+  
+  late bool mfaEnabled;
+  late bool pushEnabled;
+
+  @override
+  void initState() {
+    super.initState();
+    final user = ApiService.currentUser;
+    mfaEnabled = user?['mfaEnabled'] ?? false;
+    pushEnabled = user?['pushNotificationsEnabled'] ?? true;
+  }
+
+  Future<void> _updatePref(String key, bool val) async {
+    setState(() => _isLoading = true);
+    await ApiService.updateProfile(
+      mfa: key == 'mfa' ? val : null,
+      notifications: key == 'notifications' ? val : null,
+    );
+    if (mounted) {
+      setState(() {
+        if (key == 'mfa') mfaEnabled = val;
+        if (key == 'notifications') pushEnabled = val;
+        _isLoading = false;
+      });
+    }
+  }
+
+  void _showEditProfile() {
+    final user = ApiService.currentUser;
+    final nameCtrl = TextEditingController(text: user?['name']);
+    final emailCtrl = TextEditingController(text: user?['email']);
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Edit Profile'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(controller: nameCtrl, decoration: const InputDecoration(labelText: 'Name')),
+            TextField(controller: emailCtrl, decoration: const InputDecoration(labelText: 'Email')),
+          ],
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+          ElevatedButton(
+            onPressed: () async {
+              await ApiService.updateProfile(name: nameCtrl.text, email: emailCtrl.text);
+              if (mounted) {
+                Navigator.pop(context);
+                setState(() {}); // Refresh UI
+              }
+            },
+            child: const Text('Save'),
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context);
-    final isDark = themeProvider.isDark;
     final theme = Theme.of(context);
+    final isDark = themeProvider.isDark;
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
@@ -36,10 +95,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
         padding: const EdgeInsets.all(16.0),
         children: [
           _buildSectionHeader('Account', theme),
-          _buildActionItem(LucideIcons.user, 'Profile Details', theme, isDark),
-          _buildToggleItem(LucideIcons.lock, 'Multi-Factor Auth', mfaEnabled, (val) {
-            setState(() => mfaEnabled = val);
-          }, theme, isDark),
+          _buildActionItem(LucideIcons.user, 'Profile Details', theme, isDark, onTap: _showEditProfile),
+          _buildToggleItem(LucideIcons.lock, 'Multi-Factor Auth', mfaEnabled, (val) => _updatePref('mfa', val), theme, isDark),
           const SizedBox(height: 24),
           
           _buildSectionHeader('Preferences', theme),
@@ -97,27 +154,30 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  Widget _buildActionItem(IconData icon, String title, ThemeData theme, bool isDark) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: theme.cardColor,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: isDark ? const Color(0xFF1A233A) : Colors.grey.shade200),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Row(
-            children: [
-              Icon(icon, color: isDark ? const Color(0xFF4F6B92) : Colors.black54),
-              const SizedBox(width: 16),
-              Text(title, style: TextStyle(color: isDark ? Colors.white : Colors.black87, fontSize: 16)),
-            ],
-          ),
-          Icon(LucideIcons.chevronRight, color: isDark ? const Color(0xFF4F6B92) : Colors.black54),
-        ],
+  Widget _buildActionItem(IconData icon, String title, ThemeData theme, bool isDark, {VoidCallback? onTap}) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: theme.cardColor,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: isDark ? const Color(0xFF1A233A) : Colors.grey.shade200),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Row(
+              children: [
+                Icon(icon, color: isDark ? const Color(0xFF4F6B92) : Colors.black54),
+                const SizedBox(width: 16),
+                Text(title, style: TextStyle(color: isDark ? Colors.white : Colors.black87, fontSize: 16)),
+              ],
+            ),
+            Icon(LucideIcons.chevronRight, color: isDark ? const Color(0xFF4F6B92) : Colors.black54),
+          ],
+        ),
       ),
     );
   }

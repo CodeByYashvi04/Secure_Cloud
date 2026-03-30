@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
+import 'package:fl_chart/fl_chart.dart';
 import 'ai_chat_screen.dart';
 import '../services/api_service.dart';
 
@@ -18,20 +19,23 @@ class _HomeScreenState extends State<HomeScreen> {
     'totalAlerts': 0,
     'recentActivities': [],
   };
+  List<dynamic> _history = [];
   bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    _fetchStats();
+    _fetchData();
   }
 
-  Future<void> _fetchStats() async {
+  Future<void> _fetchData() async {
     setState(() => _isLoading = true);
-    final data = await ApiService.getStats();
+    final stats = await ApiService.getStats();
+    final history = await ApiService.getRiskHistory();
     if (mounted) {
       setState(() {
-        _stats = data;
+        _stats = stats;
+        _history = history;
         _isLoading = false;
       });
     }
@@ -71,20 +75,22 @@ class _HomeScreenState extends State<HomeScreen> {
         actions: [
           IconButton(
             icon: Icon(LucideIcons.refreshCw, color: theme.primaryColor, size: 20),
-            onPressed: _fetchStats,
+            onPressed: _fetchData,
           ),
         ],
       ),
       body: _isLoading 
           ? const Center(child: CircularProgressIndicator())
           : RefreshIndicator(
-              onRefresh: _fetchStats,
+              onRefresh: _fetchData,
               child: SingleChildScrollView(
                 padding: const EdgeInsets.all(20.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     _buildRiskGauge(_stats['riskScore']),
+                    const SizedBox(height: 20),
+                    _buildRiskTrendChart(),
                     const SizedBox(height: 20),
                     _buildStatsGrid(),
                     const SizedBox(height: 30),
@@ -137,6 +143,65 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
             ),
+    );
+  }
+
+  Widget _buildRiskTrendChart() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    if (_history.isEmpty) return const SizedBox();
+
+    return Container(
+      height: 200,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Theme.of(context).cardColor,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Theme.of(context).dividerColor),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text('Risk Trend (7 Days)', style: TextStyle(color: Color(0xFF4F6B92), fontSize: 12)),
+          const SizedBox(height: 16),
+          Expanded(
+            child: LineChart(
+              LineChartData(
+                gridData: const FlGridData(show: false),
+                titlesData: FlTitlesData(
+                  leftTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                  topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                  rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                  bottomTitles: AxisTitles(
+                    sideTitles: SideTitles(
+                      showTitles: true,
+                      getTitlesWidget: (value, meta) {
+                        if (value.toInt() < _history.length) {
+                          return Text(_history[value.toInt()]['day'], style: const TextStyle(fontSize: 10, color: Color(0xFF4F6B92)));
+                        }
+                        return const Text('');
+                      },
+                    ),
+                  ),
+                ),
+                borderData: FlBorderData(show: false),
+                lineBarsData: [
+                  LineChartBarData(
+                    spots: _history.asMap().entries.map((e) => FlSpot(e.key.toDouble(), e.value['risk'].toDouble())).toList(),
+                    isCurved: true,
+                    color: const Color(0xFF00F0FF),
+                    barWidth: 3,
+                    dotData: const FlDotData(show: true),
+                    belowBarData: BarAreaData(
+                      show: true,
+                      color: const Color(0xFF00F0FF).withValues(alpha: 0.1),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 

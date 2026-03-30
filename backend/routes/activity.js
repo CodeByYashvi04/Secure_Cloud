@@ -72,6 +72,13 @@ router.post('/log', auth, async (req, res) => {
             });
             await newAlert.save();
             console.log('Alert saved successfully.');
+            
+            // Emit real-time threat dynamically to the user's socket room
+            const io = req.app.get('io');
+            if (io) {
+                io.to(req.user.id).emit('new_threat', newAlert);
+                console.log(`[Socket] Emitted new_threat to room: ${req.user.id}`);
+            }
         }
 
         res.json(log);

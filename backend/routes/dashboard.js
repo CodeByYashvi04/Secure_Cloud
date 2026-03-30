@@ -12,9 +12,11 @@ router.get('/stats', auth, async (req, res) => {
         const totalAlerts = await Alert.countDocuments({ userId: req.user.id, isDismissed: false });
         const recentActivities = await Activity.find({ userId: req.user.id }).sort({ timestamp: -1 }).limit(5);
         
-        // Mocking some stats for now
+        // Dynamic risk score: 15 per alert, max 100
+        const calculatedRisk = Math.min(totalAlerts * 15, 100);
+
         res.json({
-            riskScore: 12,
+            riskScore: calculatedRisk || 5, // Baseline risk
             connectedClouds: 3,
             activeSessions: 1,
             totalAlerts,
@@ -22,6 +24,27 @@ router.get('/stats', auth, async (req, res) => {
         });
     } catch (err) {
         console.error(err.message);
+        res.status(500).send('Server Error');
+    }
+});
+
+// @route   GET api/dashboard/history
+// @desc    Get risk history for charts
+// @access  Private
+router.get('/history', auth, async (req, res) => {
+    try {
+        // Send back some simulated history data for the line chart
+        const history = [
+            { day: 'Mon', risk: 10 },
+            { day: 'Tue', risk: 25 },
+            { day: 'Wed', risk: 15 },
+            { day: 'Thu', risk: 45 },
+            { day: 'Fri', risk: 30 },
+            { day: 'Sat', risk: 60 },
+            { day: 'Sun', risk: 20 },
+        ];
+        res.json(history);
+    } catch (err) {
         res.status(500).send('Server Error');
     }
 });

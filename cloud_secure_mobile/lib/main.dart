@@ -7,8 +7,10 @@ import 'screens/home_screen.dart';
 import 'screens/threat_alerts_screen.dart';
 import 'screens/cloud_monitor_screen.dart';
 // import 'screens/activity_logs_screen.dart';
+import 'dart:async';
 import 'screens/settings_screen.dart';
 import 'screens/user_dashboard_screen.dart';
+import 'services/websocket_service.dart';
 
 void main() {
   runApp(
@@ -88,6 +90,62 @@ class MainLayout extends StatefulWidget {
 
 class _MainLayoutState extends State<MainLayout> {
   int _currentIndex = 0;
+  int _unreadAlerts = 0;
+  StreamSubscription? _threatSub;
+
+  @override
+  void initState() {
+    super.initState();
+    // Connect to WebSockets for real-time alerts
+    WebSocketService().connect();
+    
+    _threatSub = WebSocketService().threatStream.listen((threat) {
+      if (mounted) {
+        setState(() => _unreadAlerts++);
+        
+        final title = threat['title'] ?? 'New Threat Detected!';
+        final desc = threat['description'] ?? 'Check your alerts tab immediately.';
+        
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(LucideIcons.alertTriangle, color: Colors.white),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(title, style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+                      Text(desc, style: const TextStyle(color: Colors.white70)),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            backgroundColor: const Color(0xFFFF3366),
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            duration: const Duration(seconds: 5),
+            action: SnackBarAction(
+              label: 'VIEW',
+              textColor: Colors.white,
+              onPressed: () {
+                setState(() => _currentIndex = 2); // Switch to Alerts tab
+              },
+            ),
+          ),
+        );
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _threatSub?.cancel();
+    super.dispose();
+  }
 
   final List<Widget> _screens = [
     const HomeScreen(),
@@ -114,6 +172,9 @@ class _MainLayoutState extends State<MainLayout> {
           onTap: (index) {
             setState(() {
               _currentIndex = index;
+              if (index == 2) {
+                _unreadAlerts = 0; // Clear badges when visiting Alerts
+              }
             });
           },
           type: BottomNavigationBarType.fixed,
@@ -126,24 +187,49 @@ class _MainLayoutState extends State<MainLayout> {
           selectedFontSize: 12,
           unselectedFontSize: 12,
           elevation: 20,
-          items: const [
-            BottomNavigationBarItem(
+          items: [
+            const BottomNavigationBarItem(
               icon: Icon(LucideIcons.shield),
               label: 'HQ',
             ),
-            BottomNavigationBarItem(
+            const BottomNavigationBarItem(
               icon: Icon(LucideIcons.folder),
               label: 'Vault',
             ),
             BottomNavigationBarItem(
-              icon: Icon(LucideIcons.activity),
+              icon: Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  const Icon(LucideIcons.activity),
+                  if (_unreadAlerts > 0)
+                    Positioned(
+                      right: -6,
+                      top: -6,
+                      child: Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: const BoxDecoration(
+                          color: Color(0xFFFF3366),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Text(
+                          _unreadAlerts > 9 ? '9+' : _unreadAlerts.toString(),
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
               label: 'Alerts',
             ),
-            BottomNavigationBarItem(
+            const BottomNavigationBarItem(
               icon: Icon(LucideIcons.cloud),
               label: 'Monitor',
             ),
-            BottomNavigationBarItem(
+            const BottomNavigationBarItem(
               icon: Icon(LucideIcons.settings),
               label: 'Settings',
             ),

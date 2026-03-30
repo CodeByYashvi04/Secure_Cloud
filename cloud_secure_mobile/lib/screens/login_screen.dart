@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'register_screen.dart';
-import '../main.dart'; // To navigate to MainLayout
+import 'forgot_password_screen.dart';
+import '../main.dart'; 
 import '../services/api_service.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -156,7 +157,9 @@ class _LoginScreenState extends State<LoginScreen> {
                 Align(
                   alignment: Alignment.centerRight,
                   child: TextButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.push(context, MaterialPageRoute(builder: (_) => const ForgotPasswordScreen()));
+                    },
                     child: Text(
                       'Forgot Password?',
                       style: TextStyle(color: theme.primaryColor),

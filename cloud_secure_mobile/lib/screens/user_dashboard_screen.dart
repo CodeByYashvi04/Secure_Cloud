@@ -16,6 +16,8 @@ class _UserDashboardScreenState extends State<UserDashboardScreen> {
   List<dynamic> _files = [];
   bool _isLoading = true;
   bool _isUploading = false;
+  String _searchQuery = '';
+  final TextEditingController _searchCtrl = TextEditingController();
 
   @override
   void initState() {
@@ -134,6 +136,22 @@ class _UserDashboardScreenState extends State<UserDashboardScreen> {
             const SizedBox(height: 32),
             Text('Secure File Vault', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold,
                 color: isDark ? Colors.white : Colors.black87)),
+            const SizedBox(height: 12),
+            // Search Bar
+            TextField(
+              controller: _searchCtrl,
+              onChanged: (val) => setState(() => _searchQuery = val.toLowerCase()),
+              style: TextStyle(color: isDark ? Colors.white : Colors.black87),
+              decoration: InputDecoration(
+                hintText: 'Search files...',
+                hintStyle: TextStyle(color: isDark ? const Color(0xFF4F6B92) : Colors.black54),
+                prefixIcon: Icon(LucideIcons.search, color: theme.primaryColor, size: 20),
+                filled: true,
+                fillColor: theme.cardColor,
+                contentPadding: const EdgeInsets.symmetric(vertical: 0),
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+              ),
+            ),
             const SizedBox(height: 16),
             // Upload area
             Container(
@@ -184,7 +202,7 @@ class _UserDashboardScreenState extends State<UserDashboardScreen> {
                     style: TextStyle(color: isDark ? const Color(0xFFA0B2C6) : Colors.grey)),
               ))
             else
-              ..._files.map((f) => _buildFileRow(f)),
+              ..._files.where((f) => (f['name'] ?? '').toString().toLowerCase().contains(_searchQuery)).map((f) => _buildFileRow(f)),
           ],
         ),
       ),
@@ -198,6 +216,13 @@ class _UserDashboardScreenState extends State<UserDashboardScreen> {
     final statusColor = status == 'Encrypted' ? const Color(0xFF00F0FF)
         : status == 'Scanning' ? const Color(0xFFF5A623)
         : const Color(0xFFFF3366);
+    
+    final name = f['name'] ?? 'Unknown';
+    IconData fileIcon = LucideIcons.fileText;
+    if (name.endsWith('.pdf')) fileIcon = LucideIcons.fileType;
+    if (name.endsWith('.jpg') || name.endsWith('.png')) fileIcon = LucideIcons.image;
+    if (name.endsWith('.zip') || name.endsWith('.rar')) fileIcon = LucideIcons.archive;
+
     final uploadedAt = f['uploadedAt'] != null
         ? DateFormat('MMM d, h:mm a').format(DateTime.parse(f['uploadedAt']))
         : '';
@@ -212,13 +237,13 @@ class _UserDashboardScreenState extends State<UserDashboardScreen> {
       ),
       child: Row(
         children: [
-          Icon(LucideIcons.fileText, color: theme.primaryColor),
+          Icon(fileIcon, color: theme.primaryColor),
           const SizedBox(width: 16),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(f['name'] ?? 'Unknown', overflow: TextOverflow.ellipsis,
+                Text(name, overflow: TextOverflow.ellipsis,
                     style: TextStyle(color: isDark ? Colors.white : Colors.black87, fontWeight: FontWeight.bold)),
                 Text('${_formatSize(f['size'] ?? 0)}  •  $status  •  $uploadedAt',
                     style: TextStyle(color: statusColor, fontSize: 12)),
@@ -226,8 +251,12 @@ class _UserDashboardScreenState extends State<UserDashboardScreen> {
             ),
           ),
           IconButton(
+            icon: Icon(LucideIcons.download, color: theme.primaryColor, size: 20),
+            onPressed: () => ApiService.downloadFile(f['id'], name),
+          ),
+          IconButton(
             icon: const Icon(LucideIcons.trash2, color: Color(0xFFFF3366), size: 20),
-            onPressed: () => _deleteFile(f['id'], f['name'] ?? 'this file'),
+            onPressed: () => _deleteFile(f['id'], name),
           ),
         ],
       ),

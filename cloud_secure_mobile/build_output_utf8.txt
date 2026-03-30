@@ -1,0 +1,250 @@
+﻿[ +527 ms] Artifact Instance of 'MaterialFonts' is not required, skipping update.
+[        ] Artifact Instance of 'GradleWrapper' is not required, skipping update.
+[        ] Artifact Instance of 'AndroidGenSnapshotArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'AndroidInternalBuildArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'IOSEngineArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'FlutterWebSdk' is not required, skipping update.
+[   +1 ms] Artifact Instance of 'LegacyCanvasKitRemover' is not required, skipping update.
+[        ] Artifact Instance of 'FlutterSdk' is not required, skipping update.
+[        ] Artifact Instance of 'WindowsEngineArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'MacOSEngineArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'LinuxEngineArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'LinuxFuchsiaSDKArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'MacOSFuchsiaSDKArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'FlutterRunnerSDKArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'FlutterRunnerDebugSymbols' is not required, skipping update.
+[        ] Artifact Instance of 'IosUsbArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'IosUsbArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'IosUsbArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'IosUsbArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'IosUsbArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'IosUsbArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'FontSubsetArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'PubDependencies' is not required, skipping update.
+[        ] executing: [C:\Users\Lenovo\flutter/] git -c log.showSignature=false log HEAD -n 1 --pretty=format:%ad --date=iso
+[ +184 ms] Exit code 0 from: git -c log.showSignature=false log HEAD -n 1 --pretty=format:%ad --date=iso
+[        ] 2026-03-03 16:03:22 -0800
+[  +53 ms] Artifact Instance of 'AndroidGenSnapshotArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'AndroidInternalBuildArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'IOSEngineArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'FlutterWebSdk' is not required, skipping update.
+[        ] Artifact Instance of 'FlutterEngineStamp' is not required, skipping update.
+[        ] Artifact Instance of 'LegacyCanvasKitRemover' is not required, skipping update.
+[  +10 ms] Artifact Instance of 'WindowsEngineArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'MacOSEngineArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'LinuxEngineArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'LinuxFuchsiaSDKArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'MacOSFuchsiaSDKArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'FlutterRunnerSDKArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'FlutterRunnerDebugSymbols' is not required, skipping update.
+[ +185 ms] executing: C:\Users\Lenovo\AppData\Local\Android\Sdk\platform-tools\adb.exe devices -l
+[ +275 ms] List of devices attached
+           477e0ced               device product:CPH2467 model:CPH2467 device:OP5958L1 transport_id:4
+[   +7 ms] C:\Users\Lenovo\AppData\Local\Android\Sdk\platform-tools\adb.exe -s 477e0ced shell getprop
+[ +237 ms] Artifact Instance of 'AndroidInternalBuildArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'IOSEngineArtifacts' is not required, skipping update.
+[   +2 ms] Artifact Instance of 'FlutterEngineStamp' is not required, skipping update.
+[  +15 ms] Artifact Instance of 'MacOSEngineArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'LinuxEngineArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'LinuxFuchsiaSDKArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'MacOSFuchsiaSDKArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'FlutterRunnerSDKArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'FlutterRunnerDebugSymbols' is not required, skipping update.
+[ +170 ms] Skipping pub get: version match.
+[ +134 ms] Found plugin file_picker at C:\Users\Lenovo\AppData\Local\Pub\Cache\hosted\pub.dev\file_picker-8.3.7\
+[  +23 ms] Found plugin flutter_plugin_android_lifecycle at C:\Users\Lenovo\AppData\Local\Pub\Cache\hosted\pub.dev\flutter_plugin_android_lifecycle-2.0.34\
+[ +116 ms] Found plugin file_picker at C:\Users\Lenovo\AppData\Local\Pub\Cache\hosted\pub.dev\file_picker-8.3.7\
+[   +8 ms] Found plugin flutter_plugin_android_lifecycle at C:\Users\Lenovo\AppData\Local\Pub\Cache\hosted\pub.dev\flutter_plugin_android_lifecycle-2.0.34\
+[  +24 ms] Skipping generating web_plugin_registrant.dart because it is up-to-date.
+[  +63 ms] Found plugin file_picker at C:\Users\Lenovo\AppData\Local\Pub\Cache\hosted\pub.dev\file_picker-8.3.7\
+[  +13 ms] Found plugin flutter_plugin_android_lifecycle at C:\Users\Lenovo\AppData\Local\Pub\Cache\hosted\pub.dev\flutter_plugin_android_lifecycle-2.0.34\
+[  +17 ms] Generating C:\Users\Lenovo\OneDrive\Desktop\Project\CloudSecure\cloud_secure_mobile\android\app\src\main\java\io\flutter\plugins\GeneratedPluginRegistrant.java
+[   +3 ms] Skipping generating GeneratedPluginRegistrant.java because it is up-to-date.
+[   +8 ms] Skipping generating generated_plugin_registrant.h because it is up-to-date.
+[   +3 ms] Skipping generating generated_plugin_registrant.cc because it is up-to-date.
+[   +3 ms] Skipping generating generated_plugins.cmake because it is up-to-date.
+[   +6 ms] Skipping generating generated_plugin_registrant.h because it is up-to-date.
+[   +3 ms] Skipping generating generated_plugin_registrant.cc because it is up-to-date.
+[   +6 ms] Skipping generating generated_plugins.cmake because it is up-to-date.
+[   +6 ms] Skipping generating GeneratedPluginRegistrant.h because it is up-to-date.
+[  +83 ms] Skipping generating GeneratedPluginRegistrant.m because it is up-to-date.
+[   +5 ms] Skipping generating GeneratedPluginRegistrant.swift because it is up-to-date.
+[  +64 ms] ro.hardware = qcom
+[  +78 ms] Initializing file store
+flutter : [  +71 ms] 
+Failed to read file store 
+at C:\Users\Lenovo\OneDrive
+\Desktop\Project\CloudSecur
+e\cloud_secure_mobile\build
+\8b5b240ae4e8df2fcfc7af5e96
+2dfe7b\.filecache due to 
+FileSystemException: 
+readInto failed, path = 'C:
+\Users\Lenovo\OneDrive\Desk
+top\Project\CloudSecure\clo
+ud_secure_mobile\build\8b5b
+240ae4e8df2fcfc7af5e962dfe7
+b\.filecache' (OS Error: 
+The cloud operation is 
+invalid, errno = 380).
+At line:1 char:1
++ flutter run -v > 
+build_output.txt 2>&1
++ ~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~
+    + CategoryInfo         
+     : NotSpecified: ([  
++71     ms] Fail..., errno 
+= 380    ).:String) [], 
+RemoteExc    eption
+    + 
+FullyQualifiedErrorId     
+: NativeCommandError
+ 
+           Build artifacts 
+will not be cached. Try 
+clearing the cache 
+directories with "flutter 
+clean"
+[ +479 ms] Skipping target: gen_localizations
+[   +7 ms] gen_dart_plugin_registrant: Starting due to {InvalidatedReasonKind.outputSetAddition: The following outputs were added to the output set: C:\Users\Lenovo\OneDrive\Desktop\Project\CloudSecure\cloud_secure_mobile\.dart_tool\flutter_build\dart_plugin_registrant.dart, InvalidatedReasonKind.inputChanged: The following inputs have updated contents: C:\Users\Lenovo\OneDrive\Desktop\Project\CloudSecure\cloud_secure_mobile\.dart_tool\package_config.json}
+[ +141 ms] Found plugin file_picker at C:\Users\Lenovo\AppData\Local\Pub\Cache\hosted\pub.dev\file_picker-8.3.7\
+[   +8 ms] Found plugin flutter_plugin_android_lifecycle at C:\Users\Lenovo\AppData\Local\Pub\Cache\hosted\pub.dev\flutter_plugin_android_lifecycle-2.0.34\
+[  +16 ms] Skipping generating dart_plugin_registrant.dart because it is up-to-date.
+[        ] gen_dart_plugin_registrant: Complete
+[   +3 ms] Skipping target: _composite
+[   +3 ms] complete
+[   +6 ms] Launching lib\main.dart on CPH2467 in debug mode...
+[   +3 ms] C:\Users\Lenovo\flutter\bin\cache\dart-sdk\bin\dartaotruntime.exe C:\Users\Lenovo\flutter\bin\cache\dart-sdk\bin\snapshots\frontend_server_aot.dart.snapshot --sdk-root C:\Users\Lenovo\flutter\bin\cache\artifacts\engine\common\flutter_patched_sdk/ --incremental --target=flutter --experimental-emit-debug-metadata -DFLUTTER_VERSION=3.41.4 -DFLUTTER_CHANNEL=stable -DFLUTTER_GIT_URL=https://github.com/flutter/flutter.git -DFLUTTER_FRAMEWORK_REVISION=ff37bef603 -DFLUTTER_ENGINE_REVISION=e4b8dca3f1 -DFLUTTER_DART_VERSION=3.11.1 --output-dill C:\Users\Lenovo\AppData\Local\Temp\flutter_tools.5e05f9f5\flutter_tool.e0285113\app.dill --packages C:\Users\Lenovo\OneDrive\Desktop\Project\CloudSecure\cloud_secure_mobile\.dart_tool\package_config.json -Ddart.vm.profile=false -Ddart.vm.product=false --enable-asserts --track-widget-creation --filesystem-scheme org-dartlang-root --initialize-from-dill build\8730b13ca0249799964d0a71255a8f3b.cache.dill.track.dill --source file:///C:/Users/Lenovo/OneDrive/Desktop/Project/CloudSecure/cloud_secure_mobile/.dart_tool/flutter_build/dart_plugin_registrant.dart --source package:flutter/src/dart_plugin_registrant.dart -Dflutter.dart_plugin_registrant=file:///C:/Users/Lenovo/OneDrive/Desktop/Project/CloudSecure/cloud_secure_mobile/.dart_tool/flutter_build/dart_plugin_registrant.dart --verbosity=error --enable-experiment=alternative-invalidation-strategy
+[  +13 ms] executing: C:\Users\Lenovo\AppData\Local\Android\Sdk\build-tools\36.1.0\aapt dump xmltree C:\Users\Lenovo\OneDrive\Desktop\Project\CloudSecure\cloud_secure_mobile\build\app\outputs\flutter-apk\app-debug.apk AndroidManifest.xml
+[ +133 ms] Exit code 1 from: C:\Users\Lenovo\AppData\Local\Android\Sdk\build-tools\36.1.0\aapt dump xmltree C:\Users\Lenovo\OneDrive\Desktop\Project\CloudSecure\cloud_secure_mobile\build\app\outputs\flutter-apk\app-debug.apk AndroidManifest.xml
+[        ] 03-29 
+19:40:25.654 29684 18712 E 
+ziparchive: Zip: failed to 
+read at offset 75278983
+           03-29 
+19:40:25.655 29684 18712 E 
+ziparchive: Zip: read 
+65557 from offset 75278983 
+failed
+           03-29 
+19:40:25.655 29684 18712 W 
+zipro   : Error opening 
+archive C:\Users\Lenovo\One
+Drive\Desktop\Project\Cloud
+Secure\cloud_secure_mobile\
+build\app\outputs\flutter-a
+pk\app-debug.apk: I/O error
+           ERROR: dump 
+failed because resource 
+AndroidManifest.xml not 
+found
+[   +2 ms] Failed to 
+extract manifest from APK: 
+ProcessException: The 
+command failed with exit 
+code 1
+             Command: C:\Us
+ers\Lenovo\AppData\Local\An
+droid\Sdk\build-tools\36.1.
+0\aapt dump xmltree C:\User
+s\Lenovo\OneDrive\Desktop\P
+roject\CloudSecure\cloud_se
+cure_mobile\build\app\outpu
+ts\flutter-apk\app-debug.ap
+k AndroidManifest.xml.
+[   +5 ms] No application 
+found for TargetPlatform.an
+droid_arm64.
+           Is your project 
+missing an android\app\src\
+main\AndroidManifest.xml?
+           Consider 
+running "flutter create ." 
+to create one.
+[  +23 ms] <- compile package:cloud_secure_mobile/main.dart
+[+13048 ms] "flutter run" took 15,513ms.
+[ +187 ms] 
+           #0      
+throwToolExit (package:flut
+ter_tools/src/base/common.d
+art:34:3)
+           #1      
+RunCommand.runCommand (pack
+age:flutter_tools/src/comma
+nds/run.dart:910:9)
+           <asynchronous 
+suspension>
+           #2      FlutterC
+ommand.run.<anonymous 
+closure> (package:flutter_t
+ools/src/runner/flutter_com
+mand.dart:1590:27)
+           <asynchronous 
+suspension>
+           #3      
+AppContext.run.<anonymous 
+closure> (package:flutter_t
+ools/src/base/context.dart:
+154:19)
+           <asynchronous 
+suspension>
+           #4      
+CommandRunner.runCommand (p
+ackage:args/command_runner.
+dart:212:13)
+           <asynchronous 
+suspension>
+           #5      FlutterC
+ommandRunner.runCommand.<an
+onymous closure> (package:f
+lutter_tools/src/runner/flu
+tter_command_runner.dart:49
+6:9)
+           <asynchronous 
+suspension>
+           #6      
+AppContext.run.<anonymous 
+closure> (package:flutter_t
+ools/src/base/context.dart:
+154:19)
+           <asynchronous 
+suspension>
+           #7      FlutterC
+ommandRunner.runCommand (pa
+ckage:flutter_tools/src/run
+ner/flutter_command_runner.
+dart:431:5)
+           <asynchronous 
+suspension>
+           #8      FlutterC
+ommandRunner.run.<anonymous
+ closure> (package:flutter_
+tools/src/runner/flutter_co
+mmand_runner.dart:307:33)
+           <asynchronous 
+suspension>
+           #9      
+run.<anonymous 
+closure>.<anonymous 
+closure> (package:flutter_t
+ools/runner.dart:104:11)
+           <asynchronous 
+suspension>
+           #10     
+AppContext.run.<anonymous 
+closure> (package:flutter_t
+ools/src/base/context.dart:
+154:19)
+           <asynchronous 
+suspension>
+           #11     main (pa
+ckage:flutter_tools/executa
+ble.dart:103:3)
+           <asynchronous 
+suspension>
+
+
+[        ] Running 3 shutdown hooks
+[  +29 ms] Shutdown hooks complete
+[ +201 ms] exiting with code 1

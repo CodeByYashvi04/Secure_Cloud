@@ -56,8 +56,13 @@ router.post('/chat', auth, async (req, res) => {
             - Do not answer questions unrelated to security or this app.
         `;
 
-        // Use a fallback mechanism to find an available model (fixes 404 Not Found)
-        const modelsToTry = ["gemini-1.5-flash", "gemini-1.5-pro", "gemini-1.5-flash-latest", "gemini-pro"];
+        // Use a fallback mechanism including the latest 2.5 / 3.1 models discovered for this key
+        const modelsToTry = [
+            "gemini-2.5-flash", 
+            "gemini-3.1-flash-live-preview",
+            "gemini-1.5-flash", 
+            "gemini-pro"
+        ];
         let result;
         let lastError = null;
 

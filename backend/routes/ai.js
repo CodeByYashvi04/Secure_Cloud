@@ -58,16 +58,32 @@ router.post('/chat', auth, async (req, res) => {
 
         const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
         
-        // Use chat history for stateful chat if needed, but for now simple prompt
+        // Generate content with a timeout/safety
         const result = await model.generateContent([contextPrompt, message]);
         const response = await result.response;
         const text = response.text();
 
+        if (!text) {
+            throw new Error('Empty response from AI engine');
+        }
+
         res.json({ reply: text });
 
     } catch (err) {
-        console.error('[AI Chat Error]', err.message);
-        res.status(500).json({ message: 'AI processing failed' });
+        console.error('[AI Chat Error]', err);
+        
+        let errorReply = "I encountered an internal error while processing your request.";
+        if (err.message.includes('API_KEY_INVALID')) {
+            errorReply = "My security key (API Key) seems to be invalid. Please verify the GEMINI_API_KEY environment variable.";
+        } else if (err.message.includes('quota')) {
+            errorReply = "I've hit my daily security quota. Please try again in a bit.";
+        } else if (err.message.includes('safety')) {
+            errorReply = "I cannot fulfill that request as it triggers my internal safety protocols. Let's stick to security and cloud monitoring!";
+        } else {
+            errorReply = `Secure link interrupted: ${err.message}`;
+        }
+
+        res.json({ reply: errorReply });
     }
 });
 

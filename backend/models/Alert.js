@@ -36,4 +36,6 @@ const AlertSchema = new mongoose.Schema({
     }
 });
 
+AlertSchema.index({ userId: 1, isDismissed: 1, timestamp: -1 });
+
 module.exports = mongoose.model('Alert', AlertSchema);

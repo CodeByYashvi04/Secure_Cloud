@@ -32,19 +32,25 @@ class _LoginScreenState extends State<LoginScreen> {
     setState(() => _isLoading = true);
 
     final result = await ApiService.login(email, password);
-
-    setState(() => _isLoading = false);
-
+    
     if (result.containsKey('token')) {
       ApiService.setToken(result['token']);
       if (result['user'] != null) {
         ApiService.setUser(Map<String, dynamic>.from(result['user']));
       }
       if (!mounted) return;
+      // Navigate immediately without clearing loading to prevent a UI flash back to Login state
       Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => const MainLayout()),
+        PageRouteBuilder(
+          pageBuilder: (context, animation, secondaryAnimation) => const MainLayout(),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            return FadeTransition(opacity: animation, child: child);
+          },
+          transitionDuration: const Duration(milliseconds: 300),
+        ),
       );
     } else {
+      if (mounted) setState(() => _isLoading = false);
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(result['message'] ?? 'Login failed. Check your connection.')),

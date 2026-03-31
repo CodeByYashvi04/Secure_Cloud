@@ -30,14 +30,17 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> _fetchData() async {
     setState(() => _isLoading = true);
-    final stats = await ApiService.getStats();
-    final history = await ApiService.getRiskHistory();
-    if (mounted) {
-      setState(() {
-        _stats = stats;
-        _history = history;
-        _isLoading = false;
-      });
+    try {
+      final summary = await ApiService.getDashboardSummary();
+      if (mounted) {
+        setState(() {
+          _stats = summary['stats'] ?? _stats;
+          _history = summary['history'] ?? [];
+          _isLoading = false;
+        });
+      }
+    } catch (_) {
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 

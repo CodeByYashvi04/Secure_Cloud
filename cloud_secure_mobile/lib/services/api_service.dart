@@ -66,6 +66,18 @@ class ApiService {
 
   // ─── DASHBOARD ──────────────────────────────────────────────────────────
 
+  static Future<Map<String, dynamic>> getDashboardSummary() async {
+    try {
+      final r = await http.get(Uri.parse('$baseUrl/dashboard/summary'), headers: _headers);
+      return _safeMap(r);
+    } catch (_) {
+      return {
+        'stats': {'riskScore': 0, 'connectedClouds': 0, 'activeSessions': 0, 'totalAlerts': 0, 'recentActivities': []},
+        'history': []
+      };
+    }
+  }
+
   static Future<Map<String, dynamic>> getStats() async {
     try {
       final r = await http.get(Uri.parse('$baseUrl/dashboard/stats'), headers: _headers);

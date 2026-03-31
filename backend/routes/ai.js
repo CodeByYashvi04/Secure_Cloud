@@ -23,12 +23,17 @@ router.post('/chat', auth, async (req, res) => {
             });
         }
 
-        // 1. Gather User Context for the AI
-        const [alerts, clouds, activity] = await Promise.all([
-            Alert.find({ userId: req.user.id, isDismissed: false }).limit(5),
-            CloudAccount.find({ userId: req.user.id }),
-            Activity.find({ userId: req.user.id }).sort({ timestamp: -1 }).limit(3)
-        ]);
+        // 1. Gather User Context for the AI (with resilience)
+        let alerts = [], clouds = [], activity = [];
+        try {
+            [alerts, clouds, activity] = await Promise.all([
+                Alert.find({ userId: req.user.id, isDismissed: false }).limit(5),
+                CloudAccount.find({ userId: req.user.id }),
+                Activity.find({ userId: req.user.id }).sort({ timestamp: -1 }).limit(3)
+            ]);
+        } catch (e) {
+            console.warn('[AI] Context gathering failed, proceeding without DB context.');
+        }
 
         const contextPrompt = `
             You are "CloudSecure AI", a professional security assistant for the CloudSecure app.

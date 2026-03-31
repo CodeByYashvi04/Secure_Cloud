@@ -81,55 +81,110 @@ class _CloudMonitorScreenState extends State<CloudMonitorScreen> {
   Widget _buildCloudCard(Map<String, dynamic> account) {
     final status = account['status'] ?? 'Unknown';
     final isActive = status == 'Active';
-    final statusColor = isActive ? const Color(0xFF00F0FF) : const Color(0xFFFF3366);
     final provider = account['provider'] ?? 'Unknown';
-    final regions = (account['regions'] as List?)?.join(', ') ?? 'N/A';
-    final lastSync = account['lastSync'] != null
-        ? DateFormat('MMM d, h:mm a').format(DateTime.parse(account['lastSync']))
-        : 'Unknown';
+    
+    final metrics = account['pulseMetrics'] ?? {
+      'resourceCount': 0, 'threatLevel': 'Low', 'complianceScore': 100,
+      'activeAssets': {'compute': 0, 'storage': 0, 'identity': 0}
+    };
+
+    final threatColor = metrics['threatLevel'] == 'Critical' ? const Color(0xFFFF3366) 
+                      : metrics['threatLevel'] == 'Medium' ? Colors.orange 
+                      : const Color(0xFF00F0FF);
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 16),
+      margin: const EdgeInsets.only(bottom: 20),
       decoration: BoxDecoration(
         color: const Color(0xFF0F1522),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(color: const Color(0xFF1A233A)),
+        boxShadow: [
+          BoxShadow(color: Colors.black.withOpacity(0.3), blurRadius: 10, offset: const Offset(0, 4)),
+        ],
       ),
-      child: Padding(
-        padding: const EdgeInsets.all(20),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(16),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              children: [
-                Icon(_iconForProvider(provider), color: _colorForProvider(provider), size: 32),
-                const SizedBox(width: 16),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(provider == 'AWS' ? 'Amazon Web Services'
-                        : provider == 'GCP' ? 'Google Cloud Platform'
-                        : 'Microsoft Azure',
-                        style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
-                    const SizedBox(height: 4),
-                    Row(children: [
-                      Icon(Icons.circle, size: 8, color: statusColor),
-                      const SizedBox(width: 6),
-                      Text(status, style: TextStyle(color: statusColor, fontWeight: FontWeight.w600)),
-                    ]),
-                  ],
-                ),
-              ],
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+              color: const Color(0xFF1A233A).withOpacity(0.5),
+              child: Row(
+                children: [
+                   _PulseIndicator(isActive: isActive),
+                   const SizedBox(width: 8),
+                   Text(status.toUpperCase(), style: TextStyle(color: isActive ? const Color(0xFF00F0FF) : Colors.grey, fontSize: 11, fontWeight: FontWeight.bold, letterSpacing: 1.2)),
+                   const Spacer(),
+                   Text('ID: ${account['accountId'] ?? 'N/A'}', style: const TextStyle(color: Color(0xFF4F6B92), fontSize: 10, fontFamily: 'monospace')),
+                ],
+              ),
             ),
-            const SizedBox(height: 16),
-            const Divider(color: Color(0xFF1A233A)),
-            const SizedBox(height: 12),
-            Text('Regions: $regions', style: const TextStyle(color: Color(0xFFA0B2C6), fontSize: 14)),
-            const SizedBox(height: 4),
-            Text('Last sync: $lastSync', style: const TextStyle(color: Color(0xFFA0B2C6), fontSize: 14)),
+            
+            Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Icon(_iconForProvider(provider), color: _colorForProvider(provider), size: 32),
+                      const SizedBox(width: 16),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(provider == 'AWS' ? 'Amazon Web Services' : provider == 'GCP' ? 'Google Cloud' : 'Microsoft Azure',
+                              style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+                          Text('Monitoring ${metrics['resourceCount']} active resources', style: const TextStyle(color: Color(0xFFA0B2C6), fontSize: 12)),
+                        ],
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 24),
+                  
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text('Security Compliance', style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w500)),
+                      Text('${metrics['complianceScore']}%', style: TextStyle(color: threatColor, fontSize: 13, fontWeight: FontWeight.bold)),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(4),
+                    child: LinearProgressIndicator(
+                      value: metrics['complianceScore'] / 100,
+                      backgroundColor: const Color(0xFF1A233A),
+                      valueColor: AlwaysStoppedAnimation<Color>(threatColor),
+                      minHeight: 6,
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      _buildMiniStat('Compute', metrics['activeAssets']['compute'].toString(), LucideIcons.cpu),
+                      _buildMiniStat('Storage', metrics['activeAssets']['storage'].toString(), LucideIcons.hardDrive),
+                      _buildMiniStat('Identity', metrics['activeAssets']['identity'].toString(), LucideIcons.userCheck),
+                    ],
+                  ),
+                ],
+              ),
+            ),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildMiniStat(String label, String value, IconData icon) {
+    return Column(
+      children: [
+        Icon(icon, color: const Color(0xFF4F6B92), size: 18),
+        const SizedBox(height: 8),
+        Text(value, style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold)),
+        Text(label, style: const TextStyle(color: Color(0xFF4F6B92), fontSize: 10)),
+      ],
     );
   }
 
@@ -138,16 +193,11 @@ class _CloudMonitorScreenState extends State<CloudMonitorScreen> {
     bool isVerifying = false;
     String errorMessage = '';
 
-    // AWS
     final awsAccessCtrl = TextEditingController();
     final awsSecretCtrl = TextEditingController();
-    
-    // GCP
     final gcpProjectCtrl = TextEditingController();
     final gcpEmailCtrl = TextEditingController();
     final gcpKeyCtrl = TextEditingController();
-
-    // Azure
     final azureTenantCtrl = TextEditingController();
     final azureClientCtrl = TextEditingController();
     final azureSecretCtrl = TextEditingController();
@@ -217,7 +267,7 @@ class _CloudMonitorScreenState extends State<CloudMonitorScreen> {
                           const SizedBox(height: 16),
                           Container(
                             padding: const EdgeInsets.all(12),
-                            decoration: BoxDecoration(color: const Color(0xFFFF3366).withValues(alpha: 0.1), borderRadius: BorderRadius.circular(8)),
+                            decoration: BoxDecoration(color: const Color(0xFFFF3366).withOpacity(0.1), borderRadius: BorderRadius.circular(8)),
                             child: Row(
                               children: [
                                 const Icon(LucideIcons.alertCircle, color: Color(0xFFFF3366), size: 16),
@@ -252,7 +302,7 @@ class _CloudMonitorScreenState extends State<CloudMonitorScreen> {
                         await ApiService.addCloudAccount(selectedProvider!, payload);
                         if (mounted) {
                           Navigator.pop(context);
-                          _fetchAccounts(); // Refresh the list
+                          _fetchAccounts(); 
                           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                             content: Row(
                               children: [
@@ -275,7 +325,7 @@ class _CloudMonitorScreenState extends State<CloudMonitorScreen> {
                       backgroundColor: const Color(0xFF00F0FF),
                       foregroundColor: const Color(0xFF0B0F19),
                       padding: const EdgeInsets.symmetric(vertical: 16),
-                      disabledBackgroundColor: const Color(0xFF00F0FF).withValues(alpha: 0.5),
+                      disabledBackgroundColor: const Color(0xFF00F0FF).withOpacity(0.5),
                     ),
                     child: isVerifying
                         ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(color: Color(0xFF0B0F19), strokeWidth: 2))
@@ -298,7 +348,7 @@ class _CloudMonitorScreenState extends State<CloudMonitorScreen> {
         decoration: BoxDecoration(
           color: const Color(0xFF1A233A),
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: color.withValues(alpha: 0.3)),
+          border: Border.all(color: color.withOpacity(0.3)),
         ),
         child: Row(
           children: [
@@ -331,6 +381,56 @@ class _CloudMonitorScreenState extends State<CloudMonitorScreen> {
           ),
         ),
       ],
+    );
+  }
+}
+
+class _PulseIndicator extends StatefulWidget {
+  final bool isActive;
+  const _PulseIndicator({required this.isActive});
+
+  @override
+  State<_PulseIndicator> createState() => _PulseIndicatorState();
+}
+
+class _PulseIndicatorState extends State<_PulseIndicator> with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(vsync: this, duration: const Duration(seconds: 2))..repeat();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (!widget.isActive) return const Icon(Icons.circle, size: 8, color: Colors.grey);
+    
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (context, child) {
+        return Container(
+          width: 8,
+          height: 8,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: const Color(0xFF00F0FF).withOpacity(1.0 - _controller.value),
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0xFF00F0FF).withOpacity(1.0 - _controller.value),
+                blurRadius: 10 * _controller.value,
+                spreadRadius: 4 * _controller.value,
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }

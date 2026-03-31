@@ -252,19 +252,22 @@ class ApiService {
     } catch (_) { return []; }
   }
 
+  static Future<Map<String, dynamic>> changePassword(String current, String newPass) async {
+    try {
+      final r = await http.put(
+        Uri.parse('$baseUrl/auth/change-password'),
+        headers: {..._headers, 'Content-Type': 'application/json'},
+        body: jsonEncode({'currentPassword': current, 'newPassword': newPass}),
+      );
+      return _safeMap(r);
+    } catch (_) { return {'message': 'Update failed'}; }
+  }
+
   static Future<bool> deleteAccount() async {
     try {
       final r = await http.delete(Uri.parse('$baseUrl/auth/account'), headers: _headers);
       return r.statusCode == 200;
     } catch (_) { return false; }
-  }
-
-  static Future<Map<String, dynamic>> changePassword(String current, String newPass) async {
-    try {
-      final r = await http.put(Uri.parse('$baseUrl/auth/change-password'),
-          headers: _headers, body: jsonEncode({'currentPassword': current, 'newPassword': newPass}));
-      return _safeMap(r);
-    } catch (_) { return {'message': 'Connection failed'}; }
   }
 
   // ─── AI ASSISTANT ───────────────────────────────────────────────────────

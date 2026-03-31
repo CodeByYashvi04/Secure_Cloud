@@ -368,7 +368,80 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
+  void _showChangePasswordDialog() {
+    final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
+    final isDark = themeProvider.isDark;
+    final currentCtrl = TextEditingController();
+    final newCtrl = TextEditingController();
+    final confirmCtrl = TextEditingController();
+    bool isSaving = false;
+
+    showDialog(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setModalState) => AlertDialog(
+          backgroundColor: isDark ? const Color(0xFF0F1522) : Colors.white,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16), side: BorderSide(color: isDark ? const Color(0xFF1A233A) : Colors.grey.shade200)),
+          title: Text('Update Master Key', style: TextStyle(color: isDark ? Colors.white : Colors.black87, fontWeight: FontWeight.bold)),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _buildAuthField('Current Password', currentCtrl, true, isDark),
+              const SizedBox(height: 12),
+              _buildAuthField('New Password', newCtrl, true, isDark),
+              const SizedBox(height: 12),
+              _buildAuthField('Confirm New Password', confirmCtrl, true, isDark),
+            ],
+          ),
+          actions: [
+            TextButton(onPressed: () => Navigator.pop(context), child: Text('CANCEL', style: TextStyle(color: isDark ? Colors.grey : Colors.black54))),
+            ElevatedButton(
+              onPressed: isSaving ? null : () async {
+                if (newCtrl.text != confirmCtrl.text) {
+                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Passwords do not match')));
+                  return;
+                }
+                setModalState(() => isSaving = true);
+                final res = await ApiService.changePassword(currentCtrl.text, newCtrl.text);
+                if (mounted) {
+                  if (res['message'].toString().contains('successfully')) {
+                    Navigator.pop(context);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Password updated. Logging out for security.'), backgroundColor: Colors.green)
+                    );
+                    await Future.delayed(const Duration(seconds: 2));
+                    Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (_) => const LoginScreen()), (r) => false);
+                  } else {
+                    setModalState(() => isSaving = false);
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(res['message'] ?? 'Update failed')));
+                  }
+                }
+              },
+              style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF00F0FF), foregroundColor: const Color(0xFF0B0F19)),
+              child: isSaving ? const SizedBox(height: 16, width: 16, child: CircularProgressIndicator(strokeWidth: 2)) : const Text('SAVE'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAuthField(String label, TextEditingController ctrl, bool obscure, bool isDark) {
+    return TextField(
+      controller: ctrl,
+      obscureText: obscure,
+      style: TextStyle(color: isDark ? Colors.white : Colors.black87),
+      decoration: InputDecoration(
+        labelText: label,
+        labelStyle: TextStyle(color: isDark ? const Color(0xFF4F6B92) : Colors.grey),
+        filled: true,
+        fillColor: isDark ? const Color(0xFF1A233A) : Colors.grey.shade100,
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+      ),
+    );
+  }
+
   void _showEditProfile() {
-    // Reuse existing logic or implement specific Change Password dialog
+    _showChangePasswordDialog();
   }
 }

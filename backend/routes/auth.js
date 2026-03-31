@@ -150,6 +150,28 @@ router.put('/profile', auth, async (req, res) => {
     }
 });
 
+// @route   PUT api/auth/change-password
+// @desc    Secure password update from settings
+router.put('/change-password', auth, async (req, res) => {
+    try {
+        const { currentPassword, newPassword } = req.body;
+        const user = await User.findById(req.user.id);
+        if (!user) return res.status(404).json({ message: 'User not found' });
+
+        const isMatch = await user.comparePassword(currentPassword);
+        if (!isMatch) return res.status(400).json({ message: 'Invalid current password' });
+
+        user.password = newPassword;
+        // Audit log for security event
+        user.loginHistory.push({ ip: req.ip, device: req.headers['user-agent'] + ' (PWD_CHANGE)', timestamp: new Date() });
+        
+        await user.save();
+        res.json({ message: 'Password updated successfully. Session revoked for security.' });
+    } catch (err) {
+        res.status(500).json({ message: 'Change failed' });
+    }
+});
+
 // @route   POST api/auth/panic
 // @desc    Emergency Lockdown - Wipes all sessions
 router.post('/panic', auth, async (req, res) => {

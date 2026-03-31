@@ -98,13 +98,92 @@ class _ThreatAlertsScreenState extends State<ThreatAlertsScreen> {
     );
   }
 
+  Widget _buildAlertCard(Map<String, dynamic> alert, bool isDark) {
+    final theme = Theme.of(context);
+    final type = alert['type'] ?? 'Low';
+    final severityColor = type == 'Critical' ? const Color(0xFFFF3366)
+        : type == 'High' ? const Color(0xFFF5A623)
+        : (isDark ? const Color(0xFF00F0FF) : Colors.cyan.shade700);
+    
+    final timestamp = alert['timestamp'] != null
+        ? DateFormat('MMM d, h:mm a').format(DateTime.parse(alert['timestamp']))
+        : '';
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: theme.cardColor,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: severityColor.withOpacity(0.2)),
+        boxShadow: isDark ? [] : [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 10, offset: const Offset(0, 4))],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  color: severityColor.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Text(
+                  type.toUpperCase(),
+                  style: TextStyle(color: severityColor, fontSize: 10, fontWeight: FontWeight.bold),
+                ),
+              ),
+              Text(timestamp, style: TextStyle(color: isDark ? const Color(0xFF4F6B92) : Colors.black45, fontSize: 12)),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Text(
+            alert['title'] ?? 'Security Alert',
+            style: TextStyle(
+              color: isDark ? Colors.white : const Color(0xFF1E293B),
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            alert['description'] ?? '',
+            style: TextStyle(color: isDark ? const Color(0xFFA0B2C6) : Colors.black54, fontSize: 14),
+          ),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              Icon(LucideIcons.activity, size: 14, color: severityColor),
+              const SizedBox(width: 6),
+              Text(
+                'Source: ${alert['source'] ?? "Internal Engine"}',
+                style: TextStyle(color: isDark ? const Color(0xFF4F6B92) : Colors.black45, fontSize: 12),
+              ),
+              const Spacer(),
+              TextButton(
+                onPressed: () => _showInvestigateDialog(alert),
+                style: TextButton.styleFrom(
+                  foregroundColor: severityColor,
+                  textStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+                ),
+                child: const Text('INVESTIGATE'),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
   void _showInvestigateDialog(Map<String, dynamic> alert) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
     final type = alert['type'] ?? 'Low';
     final severityColor = type == 'Critical' ? const Color(0xFFFF3366)
         : type == 'High' ? const Color(0xFFF5A623)
-        : const Color(0xFF00F0FF);
+        : (isDark ? const Color(0xFF00F0FF) : Colors.cyan.shade700);
 
     showModalBottomSheet(
       context: context,
@@ -115,7 +194,6 @@ class _ThreatAlertsScreenState extends State<ThreatAlertsScreen> {
         decoration: BoxDecoration(
           color: theme.scaffoldBackgroundColor,
           borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-          border: Border.all(color: severityColor.withValues(alpha: 0.2)),
         ),
         padding: const EdgeInsets.all(24),
         child: Column(
@@ -124,38 +202,38 @@ class _ThreatAlertsScreenState extends State<ThreatAlertsScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('Threat Analysis', 
-                    style: TextStyle(color: severityColor, fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 1.5)),
-                IconButton(icon: const Icon(LucideIcons.x), onPressed: () => Navigator.pop(context)),
+                Text('THREAT ANALYSIS', 
+                    style: TextStyle(color: severityColor, fontSize: 11, fontWeight: FontWeight.bold, letterSpacing: 1.5)),
+                IconButton(icon: Icon(LucideIcons.x, color: isDark ? Colors.white : Colors.black54), onPressed: () => Navigator.pop(context)),
               ],
             ),
             const SizedBox(height: 8),
             Text(alert['title'] ?? 'Security Alert', 
-                style: TextStyle(color: isDark ? Colors.white : Colors.black87, fontSize: 24, fontWeight: FontWeight.bold)),
+                style: TextStyle(color: isDark ? Colors.white : const Color(0xFF1E293B), fontSize: 24, fontWeight: FontWeight.bold)),
             const SizedBox(height: 24),
             
-            _buildSectionHeader(LucideIcons.clipboardList, 'Technical Evidence'),
+            _buildSectionHeader(LucideIcons.clipboardList, 'Technical Evidence', isDark),
             const SizedBox(height: 12),
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: theme.cardColor,
+                color: isDark ? const Color(0xFF1A233A) : Colors.grey.shade50,
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: theme.dividerColor),
+                border: Border.all(color: isDark ? Colors.transparent : Colors.grey.shade200),
               ),
               child: Text(
                 'Source IP: 45.33.22.18\nLocation: Khabarovsk, Russia\nUser-Agent: Moz-Mozilla/5.0 (Kali Linux)\nResource: s3://cloud-secure-vault-production\nTimestamp: ${alert['timestamp']}',
-                style: const TextStyle(color: Color(0xFF00F0FF), fontFamily: 'monospace', fontSize: 13),
+                style: TextStyle(color: isDark ? const Color(0xFF00F0FF) : Colors.cyan.shade800, fontFamily: 'monospace', fontSize: 13, height: 1.5),
               ),
             ),
             
             const SizedBox(height: 32),
-            _buildSectionHeader(LucideIcons.shieldAlert, 'Remediation Steps'),
+            _buildSectionHeader(LucideIcons.shieldAlert, 'Remediation Steps', isDark),
             const SizedBox(height: 16),
-            _buildRemediationStep('1', 'Rotate AWS IAM keys immediately for user: "admin-svc"'),
-            _buildRemediationStep('2', 'Enable IP-based geo-fencing for block: 45.33.0.0/16'),
-            _buildRemediationStep('3', 'Isolate affected EC2 instances (i-09ab22c8)'),
+            _buildRemediationStep('1', 'Rotate AWS IAM keys immediately for user: "admin-svc"', isDark),
+            _buildRemediationStep('2', 'Enable IP-based geo-fencing for block: 45.33.0.0/16', isDark),
+            _buildRemediationStep('3', 'Isolate affected EC2 instances (i-09ab22c8)', isDark),
             
             const Spacer(),
             SizedBox(
@@ -167,6 +245,7 @@ class _ThreatAlertsScreenState extends State<ThreatAlertsScreen> {
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  elevation: 0,
                 ),
                 child: const Text('MARK AS RESOLVED', style: TextStyle(fontWeight: FontWeight.bold)),
               ),
@@ -177,17 +256,17 @@ class _ThreatAlertsScreenState extends State<ThreatAlertsScreen> {
     );
   }
 
-  Widget _buildSectionHeader(IconData icon, String title) {
+  Widget _buildSectionHeader(IconData icon, String title, bool isDark) {
     return Row(
       children: [
-        Icon(icon, size: 18, color: const Color(0xFF4F6B92)),
+        Icon(icon, size: 18, color: isDark ? const Color(0xFF4F6B92) : Colors.black45),
         const SizedBox(width: 8),
-        Text(title, style: const TextStyle(color: Color(0xFF4F6B92), fontSize: 14, fontWeight: FontWeight.bold)),
+        Text(title, style: TextStyle(color: isDark ? const Color(0xFF4F6B92) : Colors.black45, fontSize: 14, fontWeight: FontWeight.bold)),
       ],
     );
   }
 
-  Widget _buildRemediationStep(String num, String text) {
+  Widget _buildRemediationStep(String num, String text, bool isDark) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12.0),
       child: Row(
@@ -195,91 +274,11 @@ class _ThreatAlertsScreenState extends State<ThreatAlertsScreen> {
         children: [
           Container(
             padding: const EdgeInsets.all(6),
-            decoration: BoxDecoration(color: const Color(0xFF00F0FF).withValues(alpha: 0.1), shape: BoxShape.circle),
-            child: Text(num, style: const TextStyle(color: Color(0xFF00F0FF), fontSize: 10, fontWeight: FontWeight.bold)),
+            decoration: BoxDecoration(color: (isDark ? const Color(0xFF00F0FF) : Colors.cyan).withOpacity(0.1), shape: BoxShape.circle),
+            child: Text(num, style: TextStyle(color: isDark ? const Color(0xFF00F0FF) : Colors.cyan.shade700, fontSize: 10, fontWeight: FontWeight.bold)),
           ),
           const SizedBox(width: 12),
-          Expanded(child: Text(text, style: const TextStyle(color: Color(0xFFA0B2C6), fontSize: 14))),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildAlertCard(Map<String, dynamic> alert, bool isDark) {
-    final type = alert['type'] ?? 'Low';
-    final severityColor = type == 'Critical' ? const Color(0xFFFF3366)
-        : type == 'High' ? const Color(0xFFF5A623)
-        : const Color(0xFF00F0FF);
-    
-    final timestamp = alert['timestamp'] != null
-        ? DateFormat('MMM d, h:mm a').format(DateTime.parse(alert['timestamp']))
-        : '';
-
-    return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: severityColor.withValues(alpha: 0.2)),
-        boxShadow: [
-          BoxShadow(
-            color: severityColor.withValues(alpha: 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                decoration: BoxDecoration(
-                  color: severityColor.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Text(
-                  type.toUpperCase(),
-                  style: TextStyle(color: severityColor, fontSize: 10, fontWeight: FontWeight.bold),
-                ),
-              ),
-              Text(timestamp, style: const TextStyle(color: Color(0xFF4F6B92), fontSize: 12)),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Text(
-            alert['title'] ?? 'Security Alert',
-            style: TextStyle(
-              color: isDark ? Colors.white : Colors.black87,
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            alert['description'] ?? '',
-            style: const TextStyle(color: Color(0xFFA0B2C6), fontSize: 14),
-          ),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              Icon(LucideIcons.activity, size: 14, color: severityColor),
-              const SizedBox(width: 6),
-              Text(
-                'Source: ${alert['source'] ?? "Internal Engine"}',
-                style: const TextStyle(color: Color(0xFF4F6B92), fontSize: 12),
-              ),
-              const Spacer(),
-              TextButton(
-                onPressed: () => _showInvestigateDialog(alert),
-                child: const Text('INVESTIGATE'),
-              ),
-            ],
-          ),
+          Expanded(child: Text(text, style: TextStyle(color: isDark ? const Color(0xFFA0B2C6) : Colors.black54, fontSize: 14))),
         ],
       ),
     );

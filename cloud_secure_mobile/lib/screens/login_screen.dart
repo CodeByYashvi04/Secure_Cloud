@@ -68,14 +68,21 @@ class _LoginScreenState extends State<LoginScreen> {
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 24.0),
+            padding: const EdgeInsets.symmetric(horizontal: 32.0),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(
-                  LucideIcons.shieldCheck,
-                  size: 80,
-                  color: theme.primaryColor,
+                Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: theme.primaryColor.withOpacity(0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    LucideIcons.shieldCheck,
+                    size: 64,
+                    color: theme.primaryColor,
+                  ),
                 ),
                 const SizedBox(height: 24),
                 Text(
@@ -83,82 +90,40 @@ class _LoginScreenState extends State<LoginScreen> {
                   style: TextStyle(
                     fontSize: 32,
                     fontWeight: FontWeight.bold,
-                    color: isDark ? Colors.white : Colors.black87,
+                    color: isDark ? Colors.white : const Color(0xFF1E293B),
+                    letterSpacing: -0.5,
                   ),
                 ),
                 Text(
-                  'AI-Powered Threat Detection',
+                  'AI-Powered Security Operations',
                   style: TextStyle(
-                    fontSize: 16,
-                    color: isDark ? const Color(0xFFA0B2C6) : Colors.black54,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                    color: isDark ? const Color(0xFFA0B2C6) : Colors.black45,
                   ),
                 ),
                 const SizedBox(height: 48),
 
                 // Email Input
-                TextField(
+                _buildTextField(
                   controller: _emailController,
-                  style: TextStyle(color: isDark ? Colors.white : Colors.black87),
-                  decoration: InputDecoration(
-                    labelText: 'Email',
-                    labelStyle: TextStyle(color: isDark ? const Color(0xFF4F6B92) : Colors.black54),
-                    prefixIcon: Icon(LucideIcons.mail, color: theme.primaryColor),
-                    filled: true,
-                    fillColor: theme.cardColor,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(color: isDark ? const Color(0xFF1A233A) : Colors.grey.shade300),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(color: isDark ? const Color(0xFF1A233A) : Colors.grey.shade300),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(color: theme.primaryColor),
-                    ),
-                  ),
+                  label: 'Corporate Email',
+                  icon: LucideIcons.mail,
+                  isDark: isDark,
+                  theme: theme,
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 20),
 
                 // Password Input
-                TextField(
+                _buildTextField(
                   controller: _passwordController,
-                  obscureText: !_isPasswordVisible,
-                  style: TextStyle(color: isDark ? Colors.white : Colors.black87),
-                  decoration: InputDecoration(
-                    labelText: 'Password',
-                    labelStyle: TextStyle(color: isDark ? const Color(0xFF4F6B92) : Colors.black54),
-                    prefixIcon: Icon(LucideIcons.lock, color: theme.primaryColor),
-                    suffixIcon: IconButton(
-                      icon: Icon(
-                        _isPasswordVisible ? LucideIcons.eyeOff : LucideIcons.eye,
-                        color: isDark ? const Color(0xFF4F6B92) : Colors.grey,
-                      ),
-                      onPressed: () {
-                        setState(() {
-                          _isPasswordVisible = !_isPasswordVisible;
-                        });
-                      },
-                    ),
-                    filled: true,
-                    fillColor: theme.cardColor,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(color: isDark ? const Color(0xFF1A233A) : Colors.grey.shade300),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(color: isDark ? const Color(0xFF1A233A) : Colors.grey.shade300),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(color: theme.primaryColor),
-                    ),
-                  ),
+                  label: 'Security Password',
+                  icon: LucideIcons.lock,
+                  isDark: isDark,
+                  theme: theme,
+                  isPassword: true,
                 ),
-                const SizedBox(height: 12),
-
+                
                 // Forgot Password
                 Align(
                   alignment: Alignment.centerRight,
@@ -166,10 +131,8 @@ class _LoginScreenState extends State<LoginScreen> {
                     onPressed: () {
                       Navigator.push(context, MaterialPageRoute(builder: (_) => const ForgotPasswordScreen()));
                     },
-                    child: Text(
-                      'Forgot Password?',
-                      style: TextStyle(color: theme.primaryColor),
-                    ),
+                    style: TextButton.styleFrom(foregroundColor: theme.primaryColor),
+                    child: const Text('Recover Access Account', style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
                   ),
                 ),
                 const SizedBox(height: 24),
@@ -182,38 +145,40 @@ class _LoginScreenState extends State<LoginScreen> {
                     onPressed: _isLoading ? null : _handleLogin,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: theme.primaryColor,
+                      foregroundColor: const Color(0xFF0B0F19),
+                      elevation: 0,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(16),
                       ),
                     ),
                     child: _isLoading 
                       ? const SizedBox(
-                          height: 24,
-                          width: 24,
+                          height: 20,
+                          width: 20,
                           child: CircularProgressIndicator(
                             strokeWidth: 2,
                             color: Color(0xFF0B0F19),
                           ),
                         )
                       : const Text(
-                          'Secure Login',
+                          'AUTHORIZE ACCESS',
                           style: TextStyle(
-                            fontSize: 18,
+                            fontSize: 15,
                             fontWeight: FontWeight.bold,
-                            color: Color(0xFF0B0F19), // Always dark text on neon button
+                            letterSpacing: 1.2,
                           ),
                         ),
                   ),
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 32),
 
                 // Register Link
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      "Don't have an account? ",
-                      style: TextStyle(color: isDark ? const Color(0xFFA0B2C6) : Colors.black54),
+                      "New Security Officer? ",
+                      style: TextStyle(color: isDark ? const Color(0xFFA0B2C6) : Colors.black45, fontSize: 13),
                     ),
                     TextButton(
                       onPressed: () {
@@ -222,10 +187,11 @@ class _LoginScreenState extends State<LoginScreen> {
                         );
                       },
                       child: Text(
-                        'Register',
+                        'Provision Account',
                         style: TextStyle(
                           color: theme.primaryColor,
                           fontWeight: FontWeight.bold,
+                          fontSize: 13,
                         ),
                       ),
                     ),
@@ -236,6 +202,46 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildTextField({
+    required TextEditingController controller,
+    required String label,
+    required IconData icon,
+    required bool isDark,
+    required ThemeData theme,
+    bool isPassword = false,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label.toUpperCase(), style: TextStyle(color: isDark ? const Color(0xFF4F6B92) : Colors.black45, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1.2)),
+        const SizedBox(height: 8),
+        TextField(
+          controller: controller,
+          obscureText: isPassword && !_isPasswordVisible,
+          style: TextStyle(color: isDark ? Colors.white : const Color(0xFF1E293B), fontSize: 15),
+          decoration: InputDecoration(
+            prefixIcon: Icon(icon, color: isDark ? theme.primaryColor : Colors.black38, size: 20),
+            suffixIcon: isPassword ? IconButton(
+              icon: Icon(
+                _isPasswordVisible ? LucideIcons.eyeOff : LucideIcons.eye,
+                color: Colors.black38,
+                size: 20,
+              ),
+              onPressed: () => setState(() => _isPasswordVisible = !_isPasswordVisible),
+            ) : null,
+            filled: true,
+            fillColor: isDark ? const Color(0xFF1A233A) : Colors.grey.shade100,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(16),
+              borderSide: BorderSide.none,
+            ),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+          ),
+        ),
+      ],
     );
   }
 }

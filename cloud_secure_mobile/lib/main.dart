@@ -46,13 +46,25 @@ class CloudSecureApp extends StatelessWidget {
           // Light Theme
           theme: ThemeData(
             brightness: Brightness.light,
-            scaffoldBackgroundColor: const Color(0xFFF0F4F8),
-            primaryColor: const Color(0xFF007ACC), // Deep blue for light mode
-            cardColor: Colors.white,
+            primaryColor: const Color(0xFF00F0FF),
+            scaffoldBackgroundColor: Colors.white,
+            cardColor: const Color(0xFFF8FAFC),
+            appBarTheme: const AppBarTheme(
+              backgroundColor: Colors.white,
+              elevation: 0,
+              titleTextStyle: TextStyle(color: Color(0xFF1E293B), fontSize: 20, fontWeight: FontWeight.bold),
+              iconTheme: IconThemeData(color: Color(0xFF1E293B)),
+            ),
             colorScheme: const ColorScheme.light(
-              primary: Color(0xFF007ACC),
-              secondary: Color(0xFFE63946),
+              primary: Color(0xFF00F0FF),
+              secondary: Color(0xFFFF3366),
               surface: Colors.white,
+              onSurface: Color(0xFF1E293B),
+            ),
+            bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+              backgroundColor: Colors.white,
+              selectedItemColor: Color(0xFF00F0FF),
+              unselectedItemColor: Color(0xFF64748B),
             ),
             fontFamily: 'Inter',
             useMaterial3: true,

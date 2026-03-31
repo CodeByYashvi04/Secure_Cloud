@@ -150,21 +150,23 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildRiskTrendChart() {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
     if (_history.isEmpty) return const SizedBox();
 
     return Container(
       height: 200,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
+        color: theme.cardColor,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Theme.of(context).dividerColor),
+        border: Border.all(color: isDark ? const Color(0xFF1A233A) : Colors.grey.shade200),
+        boxShadow: isDark ? [] : [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 12, offset: const Offset(0, 4))],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('Risk Trend (7 Days)', style: TextStyle(color: Color(0xFF4F6B92), fontSize: 12)),
+          Text('Risk Trend (7 Days)', style: TextStyle(color: isDark ? const Color(0xFF4F6B92) : Colors.black54, fontSize: 12, fontWeight: FontWeight.bold)),
           const SizedBox(height: 16),
           Expanded(
             child: LineChart(
@@ -179,7 +181,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       showTitles: true,
                       getTitlesWidget: (value, meta) {
                         if (value.toInt() < _history.length) {
-                          return Text(_history[value.toInt()]['day'], style: const TextStyle(fontSize: 10, color: Color(0xFF4F6B92)));
+                          return Text(_history[value.toInt()]['day'], style: TextStyle(fontSize: 10, color: isDark ? const Color(0xFF4F6B92) : Colors.black45));
                         }
                         return const Text('');
                       },
@@ -209,16 +211,18 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildRiskGauge(int score) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: 30),
       decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
+        color: theme.cardColor,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Theme.of(context).dividerColor),
+        border: Border.all(color: isDark ? const Color(0xFF1A233A) : Colors.grey.shade200),
         boxShadow: [
           BoxShadow(
-            color: (score > 50 ? const Color(0xFFFF3366) : const Color(0xFF00F0FF)).withValues(alpha: 0.1),
+            color: (score > 50 ? const Color(0xFFFF3366) : const Color(0xFF00F0FF)).withValues(alpha: isDark ? 0.1 : 0.05),
             blurRadius: 20,
             spreadRadius: 2,
           ),
@@ -237,9 +241,10 @@ class _HomeScreenState extends State<HomeScreen> {
           const SizedBox(height: 8),
           Text(
             'System Risk Score'.toUpperCase(),
-            style: const TextStyle(
-              color: Color(0xFF4F6B92),
+            style: TextStyle(
+              color: isDark ? const Color(0xFF4F6B92) : Colors.black54,
               fontSize: 14,
+              fontWeight: FontWeight.bold,
               letterSpacing: 2,
             ),
           ),
@@ -275,14 +280,16 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildStatCard(IconData icon, String title, String value, Color color) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
+        color: theme.cardColor,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Theme.of(context).dividerColor),
+        border: Border.all(color: isDark ? const Color(0xFF1A233A) : Colors.grey.shade200),
+        boxShadow: isDark ? [] : [BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 10, offset: const Offset(0, 4))],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -292,7 +299,7 @@ class _HomeScreenState extends State<HomeScreen> {
           Text(
             value,
             style: TextStyle(
-              color: isDark ? Colors.white : Colors.black87,
+              color: isDark ? Colors.white : const Color(0xFF1E293B),
               fontSize: 24,
               fontWeight: FontWeight.bold,
             ),
@@ -300,9 +307,10 @@ class _HomeScreenState extends State<HomeScreen> {
           const SizedBox(height: 4),
           Text(
             title,
-            style: const TextStyle(
-              color: Color(0xFF4F6B92),
+            style: TextStyle(
+              color: isDark ? const Color(0xFF4F6B92) : Colors.black54,
               fontSize: 14,
+              fontWeight: FontWeight.w500,
             ),
           ),
         ],
@@ -311,16 +319,16 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildActivityCard(String action, String time, String detail, String riskText, Color riskColor) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
     return Container(
       padding: const EdgeInsets.all(16),
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
+        color: theme.cardColor,
         borderRadius: BorderRadius.circular(12),
-        border: Border(
-          left: BorderSide(color: riskColor, width: 4),
-        ),
+        border: Border.all(color: isDark ? const Color(0xFF1A233A) : Colors.grey.shade200),
+        boxShadow: isDark ? [] : [BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 6, offset: const Offset(0, 2))],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -331,15 +339,15 @@ class _HomeScreenState extends State<HomeScreen> {
               Text(
                 action,
                 style: TextStyle(
-                  color: isDark ? Colors.white : Colors.black87,
+                  color: isDark ? Colors.white : const Color(0xFF1E293B),
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
                 ),
               ),
               Text(
                 time,
-                style: const TextStyle(
-                  color: Color(0xFF4F6B92),
+                style: TextStyle(
+                  color: isDark ? const Color(0xFF4F6B92) : Colors.black45,
                   fontSize: 12,
                 ),
               ),
@@ -348,18 +356,26 @@ class _HomeScreenState extends State<HomeScreen> {
           const SizedBox(height: 8),
           Text(
             detail,
-            style: const TextStyle(
-              color: Color(0xFFA0B2C6),
+            style: TextStyle(
+              color: isDark ? const Color(0xFFA0B2C6) : Colors.black54,
               fontSize: 14,
             ),
           ),
-          const SizedBox(height: 8),
-          Text(
-            riskText,
-            style: TextStyle(
-              color: riskColor,
-              fontSize: 12,
-              fontWeight: FontWeight.bold,
+          const SizedBox(height: 12),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            decoration: BoxDecoration(
+              color: riskColor.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(4),
+            ),
+            child: Text(
+              riskText.toUpperCase(),
+              style: TextStyle(
+                color: riskColor,
+                fontSize: 10,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 1,
+              ),
             ),
           ),
         ],

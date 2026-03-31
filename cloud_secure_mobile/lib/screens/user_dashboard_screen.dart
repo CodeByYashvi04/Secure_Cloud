@@ -98,16 +98,20 @@ class _UserDashboardScreenState extends State<UserDashboardScreen> {
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: theme.primaryColor.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: theme.primaryColor.withValues(alpha: 0.3)),
+                color: isDark ? theme.primaryColor.withOpacity(0.05) : Colors.white,
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: isDark ? theme.primaryColor.withOpacity(0.1) : Colors.grey.shade200),
+                boxShadow: isDark ? [] : [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 12, offset: const Offset(0, 4))],
               ),
               child: Row(
                 children: [
-                  CircleAvatar(
-                    radius: 30,
-                    backgroundColor: theme.primaryColor.withValues(alpha: 0.2),
-                    child: Icon(LucideIcons.userCheck, size: 30, color: theme.primaryColor),
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: theme.primaryColor.withOpacity(0.1),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(LucideIcons.userCheck, size: 28, color: theme.primaryColor),
                   ),
                   const SizedBox(width: 16),
                   Expanded(
@@ -115,17 +119,26 @@ class _UserDashboardScreenState extends State<UserDashboardScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Welcome, ${user?['name'] ?? 'User'}',
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold,
-                              color: isDark ? Colors.white : Colors.black87),
+                          'Welcome back,',
+                          style: TextStyle(color: isDark ? const Color(0xFF4F6B92) : Colors.black45, fontSize: 12, fontWeight: FontWeight.bold),
                         ),
-                        Text(user?['email'] ?? '', 
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(color: theme.primaryColor)),
                         Text(
-                          'Role: ${user?['role'] ?? 'User'}  •  Verified',
-                          style: const TextStyle(color: Color(0xFF4F6B92), fontSize: 12),
+                          user?['name'] ?? 'Authorized User',
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold,
+                              color: isDark ? Colors.white : const Color(0xFF1E293B)),
+                        ),
+                        const SizedBox(height: 4),
+                        Row(
+                          children: [
+                            Icon(LucideIcons.mail, size: 12, color: theme.primaryColor),
+                            const SizedBox(width: 4),
+                            Flexible(
+                              child: Text(user?['email'] ?? '', 
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(color: isDark ? const Color(0xFFA0B2C6) : Colors.black54, fontSize: 12)),
+                            ),
+                          ],
                         ),
                       ],
                     ),
@@ -134,40 +147,52 @@ class _UserDashboardScreenState extends State<UserDashboardScreen> {
               ),
             ),
             const SizedBox(height: 32),
-            Text('Secure File Vault', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold,
-                color: isDark ? Colors.white : Colors.black87)),
-            const SizedBox(height: 12),
+            Row(
+              children: [
+                Icon(LucideIcons.shieldCheck, color: theme.primaryColor, size: 20),
+                const SizedBox(width: 8),
+                Text('Secure File Vault', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold,
+                    color: isDark ? Colors.white : const Color(0xFF1E293B))),
+              ],
+            ),
+            const SizedBox(height: 16),
             // Search Bar
             TextField(
               controller: _searchCtrl,
               onChanged: (val) => setState(() => _searchQuery = val.toLowerCase()),
-              style: TextStyle(color: isDark ? Colors.white : Colors.black87),
+              style: TextStyle(color: isDark ? Colors.white : const Color(0xFF1E293B)),
               decoration: InputDecoration(
-                hintText: 'Search files...',
-                hintStyle: TextStyle(color: isDark ? const Color(0xFF4F6B92) : Colors.black54),
+                hintText: 'Search encrypted files...',
+                hintStyle: TextStyle(color: isDark ? const Color(0xFF4F6B92) : Colors.black45),
                 prefixIcon: Icon(LucideIcons.search, color: theme.primaryColor, size: 20),
                 filled: true,
-                fillColor: theme.cardColor,
-                contentPadding: const EdgeInsets.symmetric(vertical: 0),
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                fillColor: isDark ? const Color(0xFF1A233A) : Colors.white,
+                contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 16),
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: isDark ? BorderSide.none : BorderSide(color: Colors.grey.shade200)),
+                enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: isDark ? BorderSide.none : BorderSide(color: Colors.grey.shade200)),
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 24),
             // Upload area
             Container(
               width: double.infinity,
-              padding: const EdgeInsets.symmetric(vertical: 40),
+              padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 20),
               decoration: BoxDecoration(
-                color: theme.cardColor,
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: isDark ? const Color(0xFF1A233A) : Colors.grey.shade300, width: 2),
+                color: isDark ? theme.cardColor : Colors.white,
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: isDark ? const Color(0xFF1A233A) : Colors.grey.shade200, width: 1.5),
+                boxShadow: isDark ? [] : [BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 8, offset: const Offset(0, 4))],
               ),
               child: Column(
                 children: [
-                  Icon(LucideIcons.uploadCloud, size: 48, color: theme.primaryColor),
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(color: theme.primaryColor.withOpacity(0.1), shape: BoxShape.circle),
+                    child: Icon(LucideIcons.uploadCloud, size: 32, color: theme.primaryColor),
+                  ),
                   const SizedBox(height: 16),
-                  Text('Tap to select and upload files securely',
-                      style: TextStyle(color: isDark ? const Color(0xFFA0B2C6) : Colors.black54)),
+                  Text('Securely sync files to the cloud vault',
+                      style: TextStyle(color: isDark ? const Color(0xFFA0B2C6) : Colors.black54, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 16),
                   _isUploading
                       ? Column(children: [
@@ -177,21 +202,24 @@ class _UserDashboardScreenState extends State<UserDashboardScreen> {
                         ])
                       : ElevatedButton.icon(
                           onPressed: _pickAndUpload,
-                          icon: const Icon(LucideIcons.filePlus),
-                          label: const Text('Select File'),
+                          icon: const Icon(LucideIcons.filePlus, size: 18),
+                          label: const Text('SELECT FILE'),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: theme.primaryColor,
                             foregroundColor: const Color(0xFF0B0F19),
+                            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            elevation: 0,
                           ),
                         ),
                 ],
               ),
             ),
-            const SizedBox(height: 24),
-            Text('Uploaded Files (${_files.length})',
+            const SizedBox(height: 32),
+            Text('Vault Assets (${_files.length})',
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold,
-                    color: isDark ? Colors.white : Colors.black87)),
-            const SizedBox(height: 12),
+                    color: isDark ? Colors.white : const Color(0xFF1E293B))),
+            const SizedBox(height: 16),
             if (_isLoading)
               const Center(child: CircularProgressIndicator())
             else if (_files.isEmpty)
@@ -213,9 +241,6 @@ class _UserDashboardScreenState extends State<UserDashboardScreen> {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
     final status = f['status'] ?? 'Unknown';
-    final statusColor = status == 'Encrypted' ? const Color(0xFF00F0FF)
-        : status == 'Scanning' ? const Color(0xFFF5A623)
-        : const Color(0xFFFF3366);
     
     final name = f['name'] ?? 'Unknown';
     IconData fileIcon = LucideIcons.fileText;
@@ -231,27 +256,33 @@ class _UserDashboardScreenState extends State<UserDashboardScreen> {
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: theme.cardColor,
-        borderRadius: BorderRadius.circular(12),
+        color: isDark ? theme.cardColor : Colors.white,
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(color: isDark ? const Color(0xFF1A233A) : Colors.grey.shade200),
+        boxShadow: isDark ? [] : [BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 4, offset: const Offset(0, 2))],
       ),
       child: Row(
         children: [
-          Icon(fileIcon, color: theme.primaryColor),
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(color: (isDark ? theme.primaryColor : Colors.cyan).withOpacity(0.1), borderRadius: BorderRadius.circular(10)),
+            child: Icon(fileIcon, color: isDark ? theme.primaryColor : Colors.cyan.shade700, size: 20),
+          ),
           const SizedBox(width: 16),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(name, overflow: TextOverflow.ellipsis,
-                    style: TextStyle(color: isDark ? Colors.white : Colors.black87, fontWeight: FontWeight.bold)),
+                    style: TextStyle(color: isDark ? Colors.white : const Color(0xFF1E293B), fontWeight: FontWeight.bold, fontSize: 15)),
+                const SizedBox(height: 4),
                 Text('${_formatSize(f['size'] ?? 0)}  •  $status  •  $uploadedAt',
-                    style: TextStyle(color: statusColor, fontSize: 12)),
+                    style: TextStyle(color: isDark ? const Color(0xFF4F6B92) : Colors.black54, fontSize: 11)),
               ],
             ),
           ),
           IconButton(
-            icon: Icon(LucideIcons.download, color: theme.primaryColor, size: 20),
+            icon: Icon(LucideIcons.download, color: isDark ? theme.primaryColor : Colors.cyan.shade700, size: 20),
             onPressed: () => ApiService.downloadFile(f['id'], name),
           ),
           IconButton(

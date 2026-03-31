@@ -88,13 +88,16 @@ class _AIChatScreenState extends State<AIChatScreen> {
   }
 
   @override
-  Widget build(BuildContext context) {
+    Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('AI Security Assistant', style: TextStyle(color: Color(0xFF00F0FF))),
-        backgroundColor: const Color(0xFF0F1522),
-        elevation: 1,
-        iconTheme: const IconThemeData(color: Color(0xFF00F0FF)),
+        title: Text('AI Security Assistant', style: TextStyle(color: isDark ? const Color(0xFF00F0FF) : const Color(0xFF1E293B), fontWeight: FontWeight.bold)),
+        backgroundColor: theme.appBarTheme.backgroundColor,
+        elevation: 0,
+        iconTheme: IconThemeData(color: isDark ? const Color(0xFF00F0FF) : const Color(0xFF1E293B)),
       ),
       body: Column(
         children: [
@@ -117,56 +120,69 @@ class _AIChatScreenState extends State<AIChatScreen> {
               },
             ),
           ),
-          _buildInputArea(),
+          _buildInputArea(isDark, theme),
         ],
       ),
     );
   }
 
   Widget _buildMessageBubble(Message message) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final isAi = message.isAi;
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 16.0),
       child: Row(
-        mainAxisAlignment: message.isAi ? MainAxisAlignment.start : MainAxisAlignment.end,
+        mainAxisAlignment: isAi ? MainAxisAlignment.start : MainAxisAlignment.end,
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          if (message.isAi) ...[
-            const Icon(LucideIcons.bot, color: Color(0xFF00F0FF), size: 24),
+          if (isAi) ...[
+            Icon(LucideIcons.bot, color: isDark ? const Color(0xFF00F0FF) : Colors.cyan.shade700, size: 24),
             const SizedBox(width: 8),
           ],
           Flexible(
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               decoration: BoxDecoration(
-                color: message.isAi ? const Color(0xFF1A233A) : const Color(0xFF4F6B92),
+                color: isAi 
+                    ? (isDark ? const Color(0xFF1A233A) : Colors.grey.shade100) 
+                    : (isDark ? const Color(0xFF4F6B92) : const Color(0xFF00F0FF).withOpacity(0.1)),
                 borderRadius: BorderRadius.only(
                   topLeft: const Radius.circular(16),
                   topRight: const Radius.circular(16),
-                  bottomLeft: Radius.circular(message.isAi ? 4 : 16),
-                  bottomRight: Radius.circular(message.isAi ? 16 : 4),
+                  bottomLeft: Radius.circular(isAi ? 4 : 16),
+                  bottomRight: Radius.circular(isAi ? 16 : 4),
                 ),
+                border: isDark ? null : Border.all(color: isAi ? Colors.grey.shade200 : const Color(0xFF00F0FF).withOpacity(0.2)),
               ),
               child: Text(
                 message.text,
-                style: const TextStyle(color: Colors.white, fontSize: 16, height: 1.4),
+                style: TextStyle(
+                  color: isAi 
+                      ? (isDark ? Colors.white : const Color(0xFF1E293B))
+                      : (isDark ? Colors.white : const Color(0xFF1E293B)),
+                  fontSize: 15, 
+                  height: 1.4
+                ),
               ),
             ),
           ),
-          if (!message.isAi) ...[
+          if (!isAi) ...[
             const SizedBox(width: 8),
-            const Icon(LucideIcons.user, color: Color(0xFFA0B2C6), size: 24),
+            Icon(LucideIcons.user, color: isDark ? const Color(0xFFA0B2C6) : Colors.grey.shade400, size: 24),
           ],
         ],
       ),
     );
   }
 
-  Widget _buildInputArea() {
+  Widget _buildInputArea(bool isDark, ThemeData theme) {
     return Container(
       padding: const EdgeInsets.all(16),
-      decoration: const BoxDecoration(
-        color: Color(0xFF0F1522),
-        border: Border(top: BorderSide(color: Color(0xFF1A233A))),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF0F1522) : Colors.white,
+        border: Border(top: BorderSide(color: isDark ? const Color(0xFF1A233A) : Colors.grey.shade100)),
       ),
       child: SafeArea(
         child: Row(
@@ -174,23 +190,23 @@ class _AIChatScreenState extends State<AIChatScreen> {
             Expanded(
               child: TextField(
                 controller: _controller,
-                style: const TextStyle(color: Colors.white),
+                style: TextStyle(color: isDark ? Colors.white : const Color(0xFF1E293B)),
                 decoration: InputDecoration(
                   hintText: 'Ask about a threat or log...',
-                  hintStyle: const TextStyle(color: Color(0xFF4F6B92)),
+                  hintStyle: TextStyle(color: isDark ? const Color(0xFF4F6B92) : Colors.black38),
                   filled: true,
-                  fillColor: const Color(0xFF0B0F19),
+                  fillColor: isDark ? const Color(0xFF0B0F19) : Colors.grey.shade50,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(24),
-                    borderSide: const BorderSide(color: Color(0xFF1A233A)),
+                    borderSide: isDark ? const BorderSide(color: Color(0xFF1A233A)) : BorderSide(color: Colors.grey.shade200),
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(24),
-                    borderSide: const BorderSide(color: Color(0xFF1A233A)),
+                    borderSide: isDark ? const BorderSide(color: Color(0xFF1A233A)) : BorderSide(color: Colors.grey.shade200),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(24),
-                    borderSide: const BorderSide(color: Color(0xFF00F0FF)),
+                    borderSide: const BorderSide(color: Color(0xFF00F0FF), width: 1.5),
                   ),
                   contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                 ),

@@ -73,11 +73,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        iconTheme: IconThemeData(color: theme.primaryColor),
+        iconTheme: IconThemeData(color: isDark ? theme.primaryColor : const Color(0xFF1E293B)),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 24.0),
+          padding: const EdgeInsets.symmetric(horizontal: 32.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -86,59 +86,61 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 style: TextStyle(
                   fontSize: 32,
                   fontWeight: FontWeight.bold,
-                  color: isDark ? Colors.white : Colors.black87,
+                  color: isDark ? Colors.white : const Color(0xFF1E293B),
+                  letterSpacing: -0.5,
                 ),
               ),
               const SizedBox(height: 8),
               Text(
-                'Register to protect your cloud infrastructure.',
+                'Provision your administrative security account.',
                 style: TextStyle(
-                  fontSize: 16,
-                  color: isDark ? const Color(0xFFA0B2C6) : Colors.black54,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  color: isDark ? const Color(0xFFA0B2C6) : Colors.black45,
                 ),
               ),
-              const SizedBox(height: 48),
+              const SizedBox(height: 40),
 
               // Full Name
               _buildTextField(
-                label: 'Full Name',
+                label: 'Legal Full Name',
                 icon: LucideIcons.user,
                 theme: theme,
                 isDark: isDark,
                 controller: _nameController,
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 20),
 
               // Email
               _buildTextField(
-                label: 'Email Address',
+                label: 'Corporate Email Address',
                 icon: LucideIcons.mail,
                 theme: theme,
                 isDark: isDark,
                 keyboardType: TextInputType.emailAddress,
                 controller: _emailController,
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 20),
 
               // Password
               _buildPasswordField(
-                label: 'Password',
+                label: 'Security Access Password',
                 icon: LucideIcons.lock,
                 theme: theme,
                 isDark: isDark,
                 controller: _passwordController,
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 20),
 
               // Confirm Password
               _buildPasswordField(
-                label: 'Confirm Password',
+                label: 'Confirm Access Password',
                 icon: LucideIcons.lock,
                 theme: theme,
                 isDark: isDark,
                 controller: _confirmController,
               ),
-              const SizedBox(height: 32),
+              const SizedBox(height: 40),
 
               // Register Button
               SizedBox(
@@ -148,29 +150,32 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   onPressed: _isLoading ? null : _handleRegister,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: theme.primaryColor,
+                    foregroundColor: const Color(0xFF0B0F19),
+                    elevation: 0,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(16),
                     ),
                   ),
                   child: _isLoading 
                     ? const SizedBox(
-                        height: 24,
-                        width: 24,
+                        height: 20,
+                        width: 20,
                         child: CircularProgressIndicator(
                           strokeWidth: 2,
                           color: Color(0xFF0B0F19),
                         ),
                       )
                     : const Text(
-                        'Create Account',
+                        'PROVISION ACCOUNT',
                         style: TextStyle(
-                          fontSize: 18,
+                          fontSize: 15,
                           fontWeight: FontWeight.bold,
-                          color: Color(0xFF0B0F19),
+                          letterSpacing: 1.2,
                         ),
                       ),
                 ),
               ),
+              const SizedBox(height: 24),
             ],
           ),
         ),
@@ -186,29 +191,27 @@ class _RegisterScreenState extends State<RegisterScreen> {
     TextInputType? keyboardType,
     TextEditingController? controller,
   }) {
-    return TextField(
-      controller: controller,
-      keyboardType: keyboardType,
-      style: TextStyle(color: isDark ? Colors.white : Colors.black87),
-      decoration: InputDecoration(
-        labelText: label,
-        labelStyle: TextStyle(color: isDark ? const Color(0xFF4F6B92) : Colors.black54),
-        prefixIcon: Icon(icon, color: theme.primaryColor),
-        filled: true,
-        fillColor: theme.cardColor,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: isDark ? const Color(0xFF1A233A) : Colors.grey.shade300),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label.toUpperCase(), style: TextStyle(color: isDark ? const Color(0xFF4F6B92) : Colors.black45, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1.2)),
+        const SizedBox(height: 8),
+        TextField(
+          controller: controller,
+          keyboardType: keyboardType,
+          style: TextStyle(color: isDark ? Colors.white : const Color(0xFF1E293B), fontSize: 15),
+          decoration: InputDecoration(
+            prefixIcon: Icon(icon, color: isDark ? theme.primaryColor : Colors.black38, size: 20),
+            filled: true,
+            fillColor: isDark ? const Color(0xFF1A233A) : Colors.grey.shade100,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(16),
+              borderSide: BorderSide.none,
+            ),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+          ),
         ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: isDark ? const Color(0xFF1A233A) : Colors.grey.shade300),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: theme.primaryColor),
-        ),
-      ),
+      ],
     );
   }
 
@@ -219,40 +222,35 @@ class _RegisterScreenState extends State<RegisterScreen> {
     required bool isDark,
     TextEditingController? controller,
   }) {
-    return TextField(
-      controller: controller,
-      obscureText: !_isPasswordVisible,
-      style: TextStyle(color: isDark ? Colors.white : Colors.black87),
-      decoration: InputDecoration(
-        labelText: label,
-        labelStyle: TextStyle(color: isDark ? const Color(0xFF4F6B92) : Colors.black54),
-        prefixIcon: Icon(icon, color: theme.primaryColor),
-        suffixIcon: IconButton(
-          icon: Icon(
-            _isPasswordVisible ? LucideIcons.eyeOff : LucideIcons.eye,
-            color: isDark ? const Color(0xFF4F6B92) : Colors.grey,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label.toUpperCase(), style: TextStyle(color: isDark ? const Color(0xFF4F6B92) : Colors.black45, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1.2)),
+        const SizedBox(height: 8),
+        TextField(
+          controller: controller,
+          obscureText: !_isPasswordVisible,
+          style: TextStyle(color: isDark ? Colors.white : const Color(0xFF1E293B), fontSize: 15),
+          decoration: InputDecoration(
+            prefixIcon: Icon(icon, color: isDark ? theme.primaryColor : Colors.black38, size: 20),
+            suffixIcon: IconButton(
+              icon: Icon(
+                _isPasswordVisible ? LucideIcons.eyeOff : LucideIcons.eye,
+                color: Colors.black38,
+                size: 20,
+              ),
+              onPressed: () => setState(() => _isPasswordVisible = !_isPasswordVisible),
+            ),
+            filled: true,
+            fillColor: isDark ? const Color(0xFF1A233A) : Colors.grey.shade100,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(16),
+              borderSide: BorderSide.none,
+            ),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
           ),
-          onPressed: () {
-            setState(() {
-              _isPasswordVisible = !_isPasswordVisible;
-            });
-          },
         ),
-        filled: true,
-        fillColor: theme.cardColor,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: isDark ? const Color(0xFF1A233A) : Colors.grey.shade300),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: isDark ? const Color(0xFF1A233A) : Colors.grey.shade300),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: theme.primaryColor),
-        ),
-      ),
+      ],
     );
   }
 }

@@ -56,7 +56,10 @@ router.post('/chat', auth, async (req, res) => {
             - Do not answer questions unrelated to security or this app.
         `;
 
-        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+        const modelName = "gemini-pro"; 
+        console.log(`[AI] Attempting AI generation with model: ${modelName}`);
+
+        const model = genAI.getGenerativeModel({ model: modelName });
         
         // Generate content with a timeout/safety
         const result = await model.generateContent([contextPrompt, message]);

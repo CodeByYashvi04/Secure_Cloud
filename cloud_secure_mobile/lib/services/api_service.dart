@@ -210,26 +210,53 @@ class ApiService {
     } catch (_) { return {'message': 'Connection failed'}; }
   }
 
-  static Future<Map<String, dynamic>> updateProfile({String? name, String? email, bool? mfa, bool? notifications}) async {
+  static Future<Map<String, dynamic>?> updateProfile({
+    String? name, String? email, bool? mfa, bool? notifications,
+    String? threatStrictness, bool? dataSanitization, bool? biometricEnabled
+  }) async {
     try {
       final body = <String, dynamic>{};
       if (name != null) body['name'] = name;
       if (email != null) body['email'] = email;
       if (mfa != null) body['mfaEnabled'] = mfa;
       if (notifications != null) body['pushNotificationsEnabled'] = notifications;
+      if (threatStrictness != null) body['threatStrictness'] = threatStrictness;
+      if (dataSanitization != null) body['dataSanitization'] = dataSanitization;
+      if (biometricEnabled != null) body['biometricEnabled'] = biometricEnabled;
 
-      final r = await http.put(Uri.parse('$baseUrl/auth/profile'),
-          headers: _headers, body: jsonEncode(body));
-      final res = _safeMap(r);
-      if (r.statusCode == 200 && _currentUser != null) {
-        // Update local user state
-        if (name != null) _currentUser!['name'] = name;
-        if (email != null) _currentUser!['email'] = email;
-        if (mfa != null) _currentUser!['mfaEnabled'] = mfa;
-        if (notifications != null) _currentUser!['pushNotificationsEnabled'] = notifications;
+      final r = await http.put(
+        Uri.parse('$baseUrl/auth/profile'),
+        headers: {..._headers, 'Content-Type': 'application/json'},
+        body: jsonEncode(body),
+      );
+      if (r.statusCode == 200) {
+        final data = jsonDecode(r.body);
+        _currentUser = data;
+        return data;
       }
-      return res;
-    } catch (_) { return {'message': 'Update failed'}; }
+      return null;
+    } catch (_) { return null; }
+  }
+
+  static Future<bool> triggerPanicMode() async {
+    try {
+      final r = await http.post(Uri.parse('$baseUrl/auth/panic'), headers: _headers);
+      return r.statusCode == 200;
+    } catch (_) { return false; }
+  }
+
+  static Future<List<dynamic>> getAuditLogs() async {
+    try {
+      final r = await http.get(Uri.parse('$baseUrl/auth/audit-logs'), headers: _headers);
+      return _safeList(r);
+    } catch (_) { return []; }
+  }
+
+  static Future<bool> deleteAccount() async {
+    try {
+      final r = await http.delete(Uri.parse('$baseUrl/auth/account'), headers: _headers);
+      return r.statusCode == 200;
+    } catch (_) { return false; }
   }
 
   static Future<Map<String, dynamic>> changePassword(String current, String newPass) async {

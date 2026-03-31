@@ -28,6 +28,29 @@ const UserSchema = new mongoose.Schema({
         type: Boolean,
         default: true
     },
+    threatStrictness: {
+        type: String,
+        enum: ['Low', 'Medium', 'High'],
+        default: 'Medium'
+    },
+    dataSanitization: {
+        type: Boolean,
+        default: false
+    },
+    biometricEnabled: {
+        type: Boolean,
+        default: false
+    },
+    apiKeys: [{
+        key: String,
+        name: String,
+        createdAt: { type: Date, default: Date.now }
+    }],
+    loginHistory: [{
+        ip: String,
+        device: String,
+        timestamp: { type: Date, default: Date.now }
+    }],
     resetPasswordToken: String,
     resetPasswordExpire: Date,
     createdAt: {

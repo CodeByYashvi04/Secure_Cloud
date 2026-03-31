@@ -239,4 +239,16 @@ class ApiService {
       return _safeMap(r);
     } catch (_) { return {'message': 'Connection failed'}; }
   }
+
+  // ─── AI ASSISTANT ───────────────────────────────────────────────────────
+
+  static Future<Map<String, dynamic>> chatWithAI(String message) async {
+    try {
+      final r = await http.post(Uri.parse('$baseUrl/ai/chat'),
+          headers: _headers, body: jsonEncode({'message': message}));
+      return _safeMap(r);
+    } catch (_) {
+      return {'reply': 'I am having trouble connecting to my secure neural link. Please check your internet connection.'};
+    }
+  }
 }

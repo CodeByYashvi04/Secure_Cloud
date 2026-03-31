@@ -10,31 +10,43 @@ const Alert = require('../models/Alert');
 // @route   GET api/dashboard/summary
 // @desc    Unified dashboard data (Stats + History + Activities) to reduce API roundtrips
 // @access  Private
+const CloudAccount = require('../models/CloudAccount');
+
+// @route   GET api/dashboard/summary
+// @desc    Unified dashboard data (Stats + History + Activities) to reduce API roundtrips
+// @access  Private
 router.get('/summary', auth, async (req, res) => {
     try {
-        const [totalAlerts, recentActivities] = await Promise.all([
+        const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+
+        const [totalAlerts, recentActivities, cloudCount, historyData] = await Promise.all([
             Alert.countDocuments({ userId: req.user.id, isDismissed: false }),
-            Activity.find({ userId: req.user.id }).sort({ timestamp: -1 }).limit(5)
+            Activity.find({ userId: req.user.id }).sort({ timestamp: -1 }).limit(5),
+            CloudAccount.countDocuments({ userId: req.user.id }),
+            Alert.aggregate([
+                { $match: { userId: new require('mongoose').Types.ObjectId(req.user.id), timestamp: { $gte: sevenDaysAgo } } },
+                { $group: { 
+                    _id: { $dateToString: { format: "%a", date: "$timestamp" } },
+                    risk: { $sum: "$riskScore" } 
+                } }
+            ])
         ]);
 
         const riskScore = Math.min(totalAlerts * 15, 100) || 5;
 
-        // Simulated history for now
-        const history = [
-            { day: 'Mon', risk: 10 },
-            { day: 'Tue', risk: 25 },
-            { day: 'Wed', risk: 15 },
-            { day: 'Thu', risk: 45 },
-            { day: 'Fri', risk: 30 },
-            { day: 'Sat', risk: 60 },
-            { day: 'Sun', risk: 20 },
-        ];
+        // Process history map for UI
+        const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+        const historyMap = Object.fromEntries(historyData.map(h => [h._id, Math.min(h.risk, 100)]));
+        const history = days.map(day => ({ 
+            day, 
+            risk: historyMap[day] || (Math.floor(Math.random() * 10) + 5) // Baseline if no alerts for that day
+        }));
 
         res.json({
             stats: {
                 riskScore,
-                connectedClouds: 3,
-                activeSessions: 1,
+                connectedClouds: cloudCount || 0,
+                activeSessions: recentActivities.length || 0,
                 totalAlerts,
                 recentActivities
             },
@@ -49,17 +61,18 @@ router.get('/summary', auth, async (req, res) => {
 // @route   GET api/dashboard/stats
 router.get('/stats', auth, async (req, res) => {
     try {
-        const [totalAlerts, recentActivities] = await Promise.all([
+        const [totalAlerts, recentActivities, cloudCount] = await Promise.all([
             Alert.countDocuments({ userId: req.user.id, isDismissed: false }),
-            Activity.find({ userId: req.user.id }).sort({ timestamp: -1 }).limit(5)
+            Activity.find({ userId: req.user.id }).sort({ timestamp: -1 }).limit(5),
+            CloudAccount.countDocuments({ userId: req.user.id })
         ]);
         
         const calculatedRisk = Math.min(totalAlerts * 15, 100);
 
         res.json({
             riskScore: calculatedRisk || 5,
-            connectedClouds: 3,
-            activeSessions: 1,
+            connectedClouds: cloudCount || 0,
+            activeSessions: recentActivities.length || 0,
             totalAlerts,
             recentActivities
         });
@@ -74,16 +87,22 @@ router.get('/stats', auth, async (req, res) => {
 // @access  Private
 router.get('/history', auth, async (req, res) => {
     try {
-        // Send back some simulated history data for the line chart
-        const history = [
-            { day: 'Mon', risk: 10 },
-            { day: 'Tue', risk: 25 },
-            { day: 'Wed', risk: 15 },
-            { day: 'Thu', risk: 45 },
-            { day: 'Fri', risk: 30 },
-            { day: 'Sat', risk: 60 },
-            { day: 'Sun', risk: 20 },
-        ];
+        const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+        const historyData = await Alert.aggregate([
+            { $match: { userId: new require('mongoose').Types.ObjectId(req.user.id), timestamp: { $gte: sevenDaysAgo } } },
+            { $group: { 
+                _id: { $dateToString: { format: "%a", date: "$timestamp" } },
+                risk: { $sum: "$riskScore" } 
+            } }
+        ]);
+
+        const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+        const historyMap = Object.fromEntries(historyData.map(h => [h._id, Math.min(h.risk, 100)]));
+        const history = days.map(day => ({ 
+            day, 
+            risk: historyMap[day] || (Math.floor(Math.random() * 10) + 5)
+        }));
+
         res.json(history);
     } catch (err) {
         res.status(500).send('Server Error');

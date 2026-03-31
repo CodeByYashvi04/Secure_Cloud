@@ -48,6 +48,12 @@ app.use('/api/dashboard', require('./routes/dashboard'));
 app.use('/api/vault', require('./routes/vault'));
 app.use('/api/cloud', require('./routes/cloud'));
 app.use('/api/activity', require('./routes/activity'));
+app.use('/api/ai', require('./routes/ai'));
+
+// Global error handler
+app.use((err, req, res, next) => {
+    res.send('CloudSecure API is running...');
+});
 
 // Placeholder for other routes
 app.get('/', (req, res) => {

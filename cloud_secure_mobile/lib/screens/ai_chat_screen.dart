@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
+import '../services/api_service.dart';
 
 class Message {
   final String id;
@@ -20,51 +21,58 @@ class _AIChatScreenState extends State<AIChatScreen> {
   final TextEditingController _controller = TextEditingController();
   final ScrollController _scrollController = ScrollController();
   
+  bool _isAiThinking = false;
+  
   final List<Message> _messages = [
     Message(
       id: '1',
       text: 'Hello! I am your AI Security Assistant. I monitor your cloud access and analyze threats. How can I help you today?',
       isAi: true,
     ),
-    Message(
-      id: '2',
-      text: 'Why did I get an alert earlier?',
-      isAi: false,
-    ),
-    Message(
-      id: '3',
-      text: 'Your login from Russia (45.33.22.1) was flagged because it is an unusual location for your account, and the device was not recognized. My risk engine scored this at 85 (Critical).',
-      isAi: true,
-    ),
   ];
 
-  void _sendMessage() {
-    if (_controller.text.trim().isEmpty) return;
+  Future<void> _sendMessage() async {
+    final text = _controller.text.trim();
+    if (text.isEmpty) return;
 
     setState(() {
       _messages.add(Message(
         id: DateTime.now().toString(),
-        text: _controller.text,
+        text: text,
         isAi: false,
       ));
+      _isAiThinking = true;
     });
     
     _controller.clear();
     _scrollToBottom();
 
-    // Simulate AI response
-    Future.delayed(const Duration(seconds: 1), () {
+    try {
+      final response = await ApiService.chatWithAI(text);
       if (mounted) {
         setState(() {
+          _isAiThinking = false;
           _messages.add(Message(
             id: DateTime.now().toString(),
-            text: "I am currently running in simulation mode. I would analyze the logs and give you insights based on Isolation Forest anomaly detection.",
+            text: response['reply'] ?? 'I encountered a temporal shift in my logic. Please try again.',
             isAi: true,
           ));
         });
         _scrollToBottom();
       }
-    });
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isAiThinking = false;
+          _messages.add(Message(
+            id: DateTime.now().toString(),
+            text: 'Mission failure. Connection to the security matrix lost.',
+            isAi: true,
+          ));
+        });
+        _scrollToBottom();
+      }
+    }
   }
 
   void _scrollToBottom() {
@@ -94,10 +102,18 @@ class _AIChatScreenState extends State<AIChatScreen> {
             child: ListView.builder(
               controller: _scrollController,
               padding: const EdgeInsets.all(16),
-              itemCount: _messages.length,
+              itemCount: _messages.length + (_isAiThinking ? 1 : 0),
               itemBuilder: (context, index) {
-                final message = _messages[index];
-                return _buildMessageBubble(message);
+                if (index < _messages.length) {
+                  final message = _messages[index];
+                  return _buildMessageBubble(message);
+                } else {
+                  return _buildMessageBubble(Message(
+                    id: 'thinking',
+                    text: 'CloudSecure Assistant is analyzing...',
+                    isAi: true,
+                  ));
+                }
               },
             ),
           ),

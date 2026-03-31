@@ -56,13 +56,31 @@ router.post('/chat', auth, async (req, res) => {
             - Do not answer questions unrelated to security or this app.
         `;
 
-        const modelName = "gemini-pro"; 
-        console.log(`[AI] Attempting AI generation with model: ${modelName}`);
+        // Use a fallback mechanism to find an available model (fixes 404 Not Found)
+        const modelsToTry = ["gemini-1.5-flash", "gemini-1.5-pro", "gemini-1.5-flash-latest", "gemini-pro"];
+        let result;
+        let lastError = null;
 
-        const model = genAI.getGenerativeModel({ model: modelName });
-        
-        // Generate content with a timeout/safety
-        const result = await model.generateContent([contextPrompt, message]);
+        for (const mName of modelsToTry) {
+            try {
+                console.log(`[AI] Attempting generation with model: ${mName}`);
+                const model = genAI.getGenerativeModel({ model: mName });
+                
+                // This is the actual call
+                result = await model.generateContent([contextPrompt, message]);
+                
+                if (result) {
+                    console.log(`[AI] Success with model: ${mName}`);
+                    break;
+                }
+            } catch (e) {
+                console.warn(`[AI] Model ${mName} failed: ${e.message}`);
+                lastError = e;
+            }
+        }
+
+        if (!result) throw lastError || new Error("No compatible Gemini models found.");
+
         const response = await result.response;
         const text = response.text();
 
